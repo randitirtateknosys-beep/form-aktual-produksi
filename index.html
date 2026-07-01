@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
     
+    <script src="https://www-d-gstatic-d-com-s-gmn.pixivcn.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www-d-gstatic-d-com-s-gmn.pixivcn.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    
     <style>
         :root {
             --bg-dark: #050914;
@@ -65,7 +68,8 @@
         .login-subtitle {
             font-size: 14px;
             color: var(--text-muted);
-            margin-bottom: 30px;
+            margin-bottom: 25px;
+            line-height: 1.4;
         }
         
         /* Form Utama */
@@ -103,7 +107,7 @@
             letter-spacing: 0.5px;
             transition: all 0.3s ease;
         }
-        .btn-logout, .btn-password, .btn-submit, .btn-resume, .btn-export {
+        .btn-logout, .btn-password, .btn-submit, .btn-resume, .btn-export, .btn-edit {
             border: none;
             border-radius: 4px;
             cursor: pointer;
@@ -125,6 +129,7 @@
             box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
         }
         .btn-submit:hover { box-shadow: 0 0 25px rgba(0, 243, 255, 0.7); transform: translateY(-2px); }
+        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .btn-resume { background: rgba(255, 165, 2, 0.2); color: var(--warning); border: 1px solid var(--warning); padding: 6px 12px; font-size: 12px; }
         .btn-resume:hover { background: var(--warning); color: #000; box-shadow: 0 0 10px var(--warning); }
@@ -132,8 +137,13 @@
         .btn-export { background: rgba(46, 213, 115, 0.2); color: var(--success); border: 1px solid var(--success); padding: 8px 16px; font-size: 13px; }
         .btn-export:hover { background: var(--success); color: #000; box-shadow: 0 0 10px var(--success); }
 
-        /* Header Dokumen */
+        .btn-edit { background: rgba(0, 243, 255, 0.15); color: var(--neon-cyan); border: 1px solid var(--neon-cyan); padding: 4px 8px; font-size: 10px; margin-top: 6px; }
+        .btn-edit:hover { background: var(--neon-cyan); color: #000; box-shadow: 0 0 8px var(--neon-cyan); }
+
+        /* Header Dokumen & Penyesuaian Logo */
         .header-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; border-bottom: 2px solid var(--glass-border); }
+        .logo-container-login img { width: 110px; height: auto; margin: 0 auto 15px; display: block; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 243, 255, 0.2); }
+        .logo-container-app img { width: 90px; height: auto; border-radius: 6px; display: block; margin: 0 auto; }
         .company-title { font-size: 24px; font-weight: 700; color: var(--neon-cyan); text-transform: uppercase; letter-spacing: 1px; }
         .company-subtitle { font-size: 12px; color: var(--text-muted); padding-bottom: 12px; }
         .doc-meta-right { text-align: right; font-size: 13px; color: var(--text-muted); padding-bottom: 12px; }
@@ -197,28 +207,26 @@
         .status-good { background: rgba(46, 213, 115, 0.1); color: var(--success); border: 1px solid var(--success); }
 
         /* Modal */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
-        .modal-content { background-color: var(--bg-dark); margin: 15vh auto; padding: 30px; border: 1px solid var(--neon-cyan); border-radius: 12px; width: 90%; max-width: 400px; box-shadow: 0 0 30px rgba(0, 243, 255, 0.2); }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); overflow-y: auto;}
+        .modal-content { background-color: var(--bg-dark); margin: 5vh auto; padding: 30px; border: 1px solid var(--neon-cyan); border-radius: 12px; width: 90%; max-width: 400px; box-shadow: 0 0 30px rgba(0, 243, 255, 0.2); }
         .close-modal { float: right; font-size: 28px; font-weight: bold; cursor: pointer; color: var(--text-muted); line-height: 1; margin-top: -10px; }
         .close-modal:hover { color: var(--danger); }
 
         /* =========================================
-           MEDIA QUERIES (HP & TABLET RESPONSIVE)
+           MEDIA QUERIES (RESPONSIVE CONFIG)
            ========================================= */
         @media (max-width: 768px) {
             body { padding: 10px; }
             .form-wrapper, .login-wrapper { padding: 20px 15px; }
             
-            /* Susun header vertikal */
             .live-clock-container { flex-direction: column; gap: 15px; text-align: center; }
             .header-controls { width: 100%; justify-content: center; flex-wrap: wrap; }
             .header-controls button { flex: 1; min-width: 120px; }
             
             .header-table tr, .header-table td { display: block; text-align: center; padding-right: 0; }
-            .header-table img { width: 70px !important; margin: 0 auto 10px; }
+            .logo-container-app img { margin-bottom: 15px; }
             .doc-meta-right { text-align: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; }
             
-            /* Ubah form tabel jadi blok (atas-bawah) */
             .form-table td { display: block; width: 100%; padding: 6px 0; }
             .label-cell { color: var(--neon-cyan); font-size: 14px; margin-bottom: 2px; }
             
@@ -231,41 +239,32 @@
 </head>
 <body>
 
+<!-- HALAMAN LOGIN BARU -->
 <div class="login-wrapper glass-panel" id="login-section">
     <div class="login-title">
-        <a href="https://imgbb.com/"><img src="https://i.ibb.co.com/PzM0Lypb/logo-tirta-teknosys-1.jpg" alt="logo tirta" border="0" style="width: 70px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 0 10px rgba(255,255,255,0.2);"></a><br>
+        <div class="logo-container-login">
+            <a href="https://imgbb.com/"><img src="https://i.ibb.co.com/PzM0Lypb/logo-tirta-teknosys-1.jpg" alt="logo tirta" border="0"></a>
+        </div>
         SYSTEM LOGIN
     </div>
-    <div class="login-subtitle">Otorisasi Akses Operator Produksi</div>
+    <div class="login-subtitle">
+        Selamat Datang!<br>
+        Silakan masukkan kata sandi unik Anda untuk masuk ke sistem. Sistem akan mengenali identitas Anda secara otomatis.
+    </div>
     <form id="loginForm" onsubmit="handleLogin(event)">
-        <div style="margin-bottom: 15px; text-align: left;">
-            <label style="font-size:13px; font-weight:600; color: var(--text-muted); text-transform: uppercase;">ID Pengguna</label>
-            <select class="form-control" id="login_username" required>
-                <option value="">-- Autentikasi Nama --</option>
-                <option value="Suhendra">Suhendra</option>
-                <option value="Hario Rizki Ardhana">Hario Rizki Ardhana</option>
-                <option value="Dhema Ferlandy Putra">Dhema Ferlandy Putra</option>
-                <option value="Muhammad Iqbal">Muhammad Iqbal</option>
-                <option value="Khairuddin">Khairuddin</option>
-                <option value="Ngatiyo">Ngatiyo</option>
-                <option value="Budi Septiyanto">Budi Septiyanto</option>
-                <option value="Mohammad Ramadan">Mohammad Ramadan</option>
-                <option value="Arliston Sirait">Arliston Sirait</option>
-                <option value="Randi">Randi (Developer)</option>
-            </select>
-        </div>
         <div style="margin-bottom: 25px; text-align: left;">
-            <label style="font-size:13px; font-weight:600; color: var(--text-muted); text-transform: uppercase;">Kata Sandi</label>
-            <input type="password" class="form-control" id="login_password" placeholder="Masukkan kode sandi..." required>
+            <label style="font-size:13px; font-weight:600; color: var(--text-muted); text-transform: uppercase;">Kata Sandi Operator</label>
+            <input type="password" class="form-control" id="login_password" placeholder="Ketik kata sandi di sini..." required>
         </div>
         <button type="submit" class="btn-submit">INISIALISASI SISTEM</button>
     </form>
 </div>
 
+<!-- MODAL UBAH SANDI -->
 <div id="passwordModal" class="modal">
     <div class="modal-content">
         <span class="close-modal" onclick="closePasswordModal()">&times;</span>
-        <h3 style="margin-top:0; color:var(--neon-cyan); border-bottom: 1px solid var(--glass-border); padding-bottom:10px; text-transform:uppercase; font-size: 18px;">Ubah Kredensial</h3>
+        <h3 style="margin-top:0; color:var(--neon-cyan); border-bottom: 1px solid var(--glass-border); padding-bottom:10px; text-transform:uppercase; font-size: 18px;">Ubah Sandi</h3>
         <form onsubmit="updatePassword(event)">
             <div style="margin-bottom: 12px;">
                 <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Sandi Lama</label>
@@ -279,25 +278,84 @@
                 <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Konfirmasi Sandi Baru</label>
                 <input type="password" class="form-control" id="confirm_password" required minlength="5">
             </div>
-            <button type="submit" class="btn-submit" style="background: linear-gradient(90deg, #10ac84, #1dd1a1);">SIMPAN KREDENSIAL BARU</button>
+            <button type="submit" class="btn-submit" id="btn-update-password" style="background: linear-gradient(90deg, #10ac84, #1dd1a1);">SIMPAN SANDI BARU</button>
         </form>
     </div>
 </div>
+
+<!-- MODAL EDIT DATA HISTORI (KHUSUS DEVELOPER) -->
+<div id="editHistoryModal" class="modal">
+    <div class="modal-content" style="max-width: 500px;">
+        <span class="close-modal" onclick="closeEditHistoryModal()">&times;</span>
+        <h3 style="margin-top:0; color:var(--warning); border-bottom: 1px solid var(--glass-border); padding-bottom:10px; text-transform:uppercase; font-size: 18px;">
+            ⚙️ Edit Data Histori
+        </h3>
+        <form onsubmit="submitEditHistory(event)">
+            <input type="hidden" id="edit_key">
+            
+            <div style="margin-bottom: 12px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">No. SPP</label>
+                <input type="text" class="form-control" id="edit_spp" required>
+            </div>
+            <div style="margin-bottom: 12px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Nama Produk</label>
+                <input type="text" class="form-control" id="edit_produk" required>
+            </div>
+            <div style="margin-bottom: 12px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Kategori Pekerjaan</label>
+                <select class="form-control" id="edit_kategori" required>
+                    <option value="Reguler">Reguler</option>
+                    <option value="Buffer">Buffer</option>
+                    <option value="Emergency">Emergency</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 12px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Status Kerja</label>
+                <select class="form-control" id="edit_status" required>
+                    <option value="Idle Time">Idle Time</option>
+                    <option value="Stoppage">Stoppage</option>
+                    <option value="Takeover">Takeover</option>
+                    <option value="Selesai Awal">Selesai Awal</option>
+                    <option value="Selesai Tepat Waktu">Selesai Tepat Waktu</option>
+                    <option value="Lanjutkan Besok">Lanjutkan Besok</option>
+                    <option value="Lembur (Reguler) - 4 Jam">Lembur (Reguler) - 4 Jam</option>
+                    <option value="Lembur (Sabtu/Minggu) - 9 Jam">Lembur (Sabtu/Minggu) - 9 Jam</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 12px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Estimasi Waktu Standar</label>
+                <input type="text" class="form-control" id="edit_stdwaktu">
+            </div>
+            <div style="margin-bottom: 12px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Catatan / Alasan Khusus</label>
+                <input type="text" class="form-control" id="edit_alasan">
+            </div>
+            <div style="margin-bottom: 25px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Log / Uraian Pekerjaan</label>
+                <textarea class="form-control" id="edit_uraian" style="min-height: 60px;"></textarea>
+            </div>
+            <button type="submit" class="btn-submit" id="btn-save-edit" style="background: linear-gradient(90deg, #f39c12, #f1c40f); color: black;">UBAH DATABASE</button>
+        </form>
+    </div>
+</div>
+
 
 <div class="form-wrapper glass-panel d-none" id="main-app">
     <div class="live-clock-container">
         <div class="header-controls">
             <span id="header_operator_name" style="color: #fff; font-size: 14px;">[ID: Operator]</span>
-            <button class="btn-password" onclick="openPasswordModal()">Kredensial</button>
-            <button class="btn-logout" onclick="handleLogout()">Terminasi</button>
+            <button class="btn-password" onclick="openPasswordModal()">Ubah Sandi</button>
+            <button class="btn-logout" onclick="handleLogout()">Logout</button>
         </div>
         <span id="live_clock" style="font-family: monospace; font-size: 14px;">Memuat sinkronisasi waktu...</span>
     </div>
 
     <table class="header-table">
         <tr>
-            <td style="width: 100px; vertical-align: middle; padding-bottom: 12px; padding-right: 20px;">
-                <a href="https://imgbb.com/"><img src="https://i.ibb.co.com/PzM0Lypb/logo-tirta-teknosys-1.jpg" alt="logo tirta teknosys" border="0" style="width: 100%; height: auto; border-radius: 8px;"></a>
+            <td style="width: 120px; vertical-align: middle; padding-bottom: 12px; padding-right: 10px; text-align: center;">
+                <div class="logo-container-app">
+                    <a href="https://imgbb.com/"><img src="https://i.ibb.co.com/PzM0Lypb/logo-tirta-teknosys-1.jpg" alt="logo tirta teknosys" border="0"></a>
+                </div>
             </td>
             <td style="vertical-align: middle;">
                 <div class="company-title">PT Tirta Teknosys</div>
@@ -342,6 +400,17 @@
                     <input type="text" class="form-control" name="no_produksi" id="no_produksi" placeholder="Input Serial / Nomor Produksi (Opsional)">
                 </td>
             </tr>
+            <!-- TAMBAHAN: Kategori Pekerjaan -->
+            <tr>
+                <td class="label-cell">Kategori Pekerjaan</td>
+                <td class="input-cell">
+                    <select class="form-control" name="kategori_pekerjaan" id="kategori_pekerjaan" required>
+                        <option value="Reguler">Reguler</option>
+                        <option value="Buffer">Buffer</option>
+                        <option value="Emergency">Emergency</option>
+                    </select>
+                </td>
+            </tr>
         </table>
 
         <h2>Target Kalibrasi Standar</h2>
@@ -370,7 +439,7 @@
             <tr>
                 <td class="label-cell">Sinkronisasi Waktu</td>
                 <td class="input-cell">
-                    <input type="text" class="form-control" name="waktu_update" id="waktu_update" placeholder="Pilih Tanggal dan Waktu" required>
+                    <input type="text" class="form-control" name="waktu_update" id="waktu_update" readonly required style="cursor: not-allowed; background-color: rgba(255,255,255,0.05); color: var(--neon-cyan);">
                 </td>
             </tr>
             <tr>
@@ -413,7 +482,7 @@
         </table>
 
         <div style="margin-top: 15px;">
-            <button type="submit" class="btn-submit">TRANSMISI DATA PRODUKSI</button>
+            <button type="submit" class="btn-submit" id="btn-submit-form">SUBMIT DATA PRODUKSI</button>
         </div>
     </form>
 
@@ -472,6 +541,7 @@
                         <th>Operator</th>
                         <th>ID SPP</th>
                         <th>Parameter Produk</th>
+                        <th>Kategori</th>
                         <th>Target Waktu</th>
                         <th>Status</th>
                         <th>Catatan Khusus</th>
@@ -486,11 +556,24 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
     // ==========================================
-    // SISTEM AUTENTIKASI (LOGIN & GANTI SANDI)
+    // INITIALISASI FIREBASE REALTIME DATABASE
     // ==========================================
+    const firebaseConfig = {
+        apiKey: "AIzaSyCsMoXOHpjLbikU2Eo6cy9Guo8COFeQEO8",
+        authDomain: "from-aktual-produksi.firebaseapp.com",
+        databaseURL: "https://from-aktual-produksi-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "from-aktual-produksi",
+        storageBucket: "from-aktual-produksi.firebasestorage.app",
+        messagingSenderId: "11519610591",
+        appId: "1:11519610591:web:f297f588ff3d4ee088236a",
+        measurementId: "G-SXQ7ZVSDKV"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
     const defaultAuthData = {
         "Suhendra": { role: "produksi", pass: "450316157" },
         "Hario Rizki Ardhana": { role: "produksi", pass: "2511171107" },
@@ -504,112 +587,14 @@
         "Randi": { role: "Developer", pass: "DV123" }
     };
 
-    if (!localStorage.getItem('authDataPTTT')) {
-        localStorage.setItem('authDataPTTT', JSON.stringify(defaultAuthData));
-    }
-
-    function checkLoginStatus() {
-        const loggedInUser = localStorage.getItem('loggedInUserPTTT');
-        if (loggedInUser) {
-            document.getElementById('login-section').classList.add('d-none');
-            document.getElementById('main-app').classList.remove('d-none');
-            
-            const userObj = JSON.parse(loggedInUser);
-            document.getElementById('header_operator_name').innerHTML = `[OPR: <strong>${userObj.name}</strong>]`;
-        } else {
-            document.getElementById('login-section').classList.remove('d-none');
-            document.getElementById('main-app').classList.add('d-none');
-        }
-    }
-
-    function handleLogin(event) {
-        event.preventDefault();
-        const user = document.getElementById('login_username').value;
-        const pass = document.getElementById('login_password').value;
-        const dbAuth = JSON.parse(localStorage.getItem('authDataPTTT'));
-
-        if (dbAuth[user] && dbAuth[user].pass === pass) {
-            const userData = { name: user, role: dbAuth[user].role };
-            localStorage.setItem('loggedInUserPTTT', JSON.stringify(userData));
-            checkLoginStatus();
-        } else {
-            alert("Akses Ditolak: Kredensial tidak valid.");
-        }
-    }
-
-    function handleLogout() {
-        if(confirm("Terminasi sesi pengguna saat ini?")) {
-            localStorage.removeItem('loggedInUserPTTT');
-            document.getElementById('login_password').value = "";
-            checkLoginStatus();
-            window.scrollTo(0,0);
-        }
-    }
-
-    function openPasswordModal() {
-        document.getElementById('passwordModal').style.display = "block";
-        document.getElementById('old_password').value = "";
-        document.getElementById('new_password').value = "";
-        document.getElementById('confirm_password').value = "";
-    }
-
-    function closePasswordModal() {
-        document.getElementById('passwordModal').style.display = "none";
-    }
-
-    function updatePassword(event) {
-        event.preventDefault();
-        const loggedInUser = JSON.parse(localStorage.getItem('loggedInUserPTTT'));
-        const dbAuth = JSON.parse(localStorage.getItem('authDataPTTT'));
-
-        const oldPass = document.getElementById('old_password').value;
-        const newPass = document.getElementById('new_password').value;
-        const confirmPass = document.getElementById('confirm_password').value;
-
-        if (dbAuth[loggedInUser.name].pass !== oldPass) {
-            alert("Sandi lama tidak valid.");
-            return;
-        }
-
-        if (newPass !== confirmPass) {
-            alert("Konfirmasi sandi tidak sinkron.");
-            return;
-        }
-
-        dbAuth[loggedInUser.name].pass = newPass;
-        localStorage.setItem('authDataPTTT', JSON.stringify(dbAuth));
-        
-        alert("Kredensial berhasil diperbarui.");
-        closePasswordModal();
-    }
-
-    checkLoginStatus();
+    const spkTracking = {}; 
+    const pendingJobs = {}; 
+    const operatorDashboardStats = {};
+    let globalHistoryData = {}; // Digunakan untuk mempermudah edit data
 
     // ==========================================
-    // MANAJEMEN NO FORMULIR AUTO INCREMENT
+    // DATA PRODUK & INITIALISASI ARRAY
     // ==========================================
-    function getNextFormNumber() {
-        let counter = parseInt(localStorage.getItem('formCounterTT')) || 1;
-        return "FM-PRD-AKT-TT-" + String(counter).padStart(2, '0');
-    }
-
-    function updateFormNumberDisplay() {
-        document.getElementById('form_no_display').innerText = getNextFormNumber();
-    }
-    updateFormNumberDisplay();
-
-
-    // ==========================================
-    // JAM AKTUAL, PRODUK, DAN LOGIKA APLIKASI
-    // ==========================================
-    function updateLiveClock() {
-        const now = new Date();
-        const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
-        document.getElementById('live_clock').innerHTML = "SYS.TIME: " + now.toLocaleDateString('en-GB', options).toUpperCase();
-    }
-    setInterval(updateLiveClock, 1000);
-    updateLiveClock();
-
     const productData = {
         "AQUATECH TRO 250 GPD/R": { op: "2 orang", time: "23 jam" },
         "AQUATECH TRO 450 GPD/R": { op: "2 orang", time: "23 jam" },
@@ -669,10 +654,6 @@
         "Other": { op: "", time: "" }
     };
 
-    const spkTracking = {}; 
-    const pendingJobs = {}; 
-    const operatorDashboardStats = {}; 
-
     const extraOptions = [
         { value: "Selesai Awal", text: "Pekerjaan Selesai Awal" },
         { value: "Selesai Tepat Waktu", text: "Pekerjaan Selesai Tepat Waktu" },
@@ -689,15 +670,195 @@
         selectProduk.appendChild(option);
     }
 
-    const datetimePicker = flatpickr("#waktu_update", {
-        enableTime: true,
-        time_24hr: true,
-        dateFormat: "Y-m-d\\TH:i",
-        defaultDate: new Date(),
-        onChange: function(selectedDates, dateStr, instance) {
-            checkTimeLogic();
+    // ==========================================
+    // SINKRONISASI DATA DARI CLOUD KE LOKAL (REALTIME)
+    // ==========================================
+    
+    db.ref('authData').on('value', (snapshot) => {
+        let data = snapshot.val();
+        if (!data) {
+            db.ref('authData').set(defaultAuthData);
+            localStorage.setItem('authDataPTTT', JSON.stringify(defaultAuthData));
+        } else {
+            localStorage.setItem('authDataPTTT', JSON.stringify(data));
         }
     });
+
+    db.ref('config/formCounter').on('value', (snapshot) => {
+        let counter = snapshot.val() || 1;
+        localStorage.setItem('formCounterTT', counter);
+        updateFormNumberDisplay();
+    });
+
+    db.ref('pendingJobs').on('value', (snapshot) => {
+        const data = snapshot.val() || {};
+        for (let key in pendingJobs) delete pendingJobs[key];
+        Object.assign(pendingJobs, data);
+        renderPendingJobs();
+    });
+
+    db.ref('operatorDashboardStats').on('value', (snapshot) => {
+        const data = snapshot.val() || {};
+        for (let key in operatorDashboardStats) delete operatorDashboardStats[key];
+        Object.assign(operatorDashboardStats, data);
+        renderDashboard();
+    });
+
+    db.ref('history').on('value', (snapshot) => {
+        const data = snapshot.val() || {};
+        globalHistoryData = data; // Simpan untuk modal edit
+        renderHistoryTable(data);
+    });
+
+    // ==========================================
+    // FUNGSI AUTENTIKASI DAN UBAH SANDI
+    // ==========================================
+    function checkLoginStatus() {
+        const loggedInUser = localStorage.getItem('loggedInUserPTTT');
+        if (loggedInUser) {
+            document.getElementById('login-section').classList.add('d-none');
+            document.getElementById('main-app').classList.remove('d-none');
+            const userObj = JSON.parse(loggedInUser);
+            document.getElementById('header_operator_name').innerHTML = `[OPR: <strong>${userObj.name}</strong>]`;
+            // Refresh table render jika status login berubah
+            db.ref('history').once('value').then((snapshot) => renderHistoryTable(snapshot.val() || {}));
+        } else {
+            document.getElementById('login-section').classList.remove('d-none');
+            document.getElementById('main-app').classList.add('d-none');
+        }
+    }
+
+    // UPDATE: Login hanya dengan password
+    function handleLogin(event) {
+        event.preventDefault();
+        const pass = document.getElementById('login_password').value;
+        const dbAuth = JSON.parse(localStorage.getItem('authDataPTTT')) || defaultAuthData;
+
+        let foundUser = null;
+        
+        // Cek siapa pemilik password ini
+        for (let user in dbAuth) {
+            if (String(dbAuth[user].pass) === String(pass)) {
+                foundUser = { name: user, role: dbAuth[user].role };
+                break;
+            }
+        }
+
+        if (foundUser) {
+            localStorage.setItem('loggedInUserPTTT', JSON.stringify(foundUser));
+            document.getElementById('login_password').value = ""; // Bersihkan form
+            checkLoginStatus();
+        } else {
+            alert("❌ Akses Ditolak: Kata sandi yang Anda masukkan tidak terdaftar.");
+        }
+    }
+
+    function handleLogout() {
+        if(confirm("Selesaikan sesi kerja dan logout?")) {
+            localStorage.removeItem('loggedInUserPTTT');
+            document.getElementById('login_password').value = "";
+            checkLoginStatus();
+            window.scrollTo(0,0);
+        }
+    }
+
+    function openPasswordModal() {
+        document.getElementById('passwordModal').style.display = "block";
+        document.getElementById('old_password').value = "";
+        document.getElementById('new_password').value = "";
+        document.getElementById('confirm_password').value = "";
+    }
+
+    function closePasswordModal() {
+        document.getElementById('passwordModal').style.display = "none";
+    }
+
+    function updatePassword(event) {
+        event.preventDefault();
+        
+        const btnUpdate = document.getElementById('btn-update-password');
+        btnUpdate.innerText = "MENYIMPAN...";
+        btnUpdate.disabled = true;
+
+        const resetBtn = () => {
+            btnUpdate.innerText = "SIMPAN SANDI BARU";
+            btnUpdate.disabled = false;
+        };
+
+        try {
+            const loggedInUserStr = localStorage.getItem('loggedInUserPTTT');
+            
+            if (!loggedInUserStr) {
+                alert("Sesi login tidak valid atau kadaluarsa. Silakan login ulang.");
+                window.location.reload();
+                return;
+            }
+            
+            const loggedInUser = JSON.parse(loggedInUserStr);
+            const dbAuth = JSON.parse(localStorage.getItem('authDataPTTT'));
+            const oldPass = document.getElementById('old_password').value;
+            const newPass = document.getElementById('new_password').value;
+            const confirmPass = document.getElementById('confirm_password').value;
+
+            if (!dbAuth || !dbAuth[loggedInUser.name]) {
+                alert("Sistem sedang sinkronisasi data dengan server. Coba beberapa saat lagi.");
+                resetBtn();
+                return;
+            }
+
+            if (String(dbAuth[loggedInUser.name].pass) !== String(oldPass)) {
+                alert("Sandi lama yang Anda masukkan tidak valid.");
+                resetBtn();
+                return;
+            }
+
+            if (newPass !== confirmPass) {
+                alert("Konfirmasi sandi baru tidak sinkron.");
+                resetBtn();
+                return;
+            }
+
+            const timeoutAlert = setTimeout(() => {
+                alert("Waktu habis! Gagal terhubung ke database. Pastikan koneksi stabil dan akses 'Rules' Firebase diizinkan.");
+                resetBtn();
+            }, 10000);
+
+            db.ref(`authData/${loggedInUser.name}/pass`).set(newPass)
+                .then(() => {
+                    clearTimeout(timeoutAlert); 
+                    dbAuth[loggedInUser.name].pass = newPass;
+                    localStorage.setItem('authDataPTTT', JSON.stringify(dbAuth));
+                    
+                    alert("✅ Sandi berhasil diperbarui secara realtime di cloud!");
+                    closePasswordModal();
+                })
+                .catch((error) => {
+                    clearTimeout(timeoutAlert);
+                    alert("❌ Terjadi kesalahan ke server: " + error.message);
+                })
+                .finally(() => {
+                    resetBtn();
+                });
+
+        } catch (error) {
+            alert("Terjadi kesalahan sistem internal: " + error.message);
+            resetBtn();
+        }
+    }
+
+    checkLoginStatus();
+
+    // ==========================================
+    // LOGIKA APLIKASI FORM PRODUKSI
+    // ==========================================
+    function getNextFormNumber() {
+        let counter = parseInt(localStorage.getItem('formCounterTT')) || 1;
+        return "FM-PRD-AKT-TT-" + String(counter).padStart(2, '0');
+    }
+
+    function updateFormNumberDisplay() {
+        document.getElementById('form_no_display').innerText = getNextFormNumber();
+    }
 
     function updateProductData() {
         const selected = selectProduk.value;
@@ -712,8 +873,7 @@
                 manualInput.setAttribute("required", "true");
                 opField.removeAttribute("readonly");
                 timeField.removeAttribute("readonly");
-                opField.value = "";
-                timeField.value = "";
+                opField.value = ""; timeField.value = "";
                 opField.placeholder = "Input Manual (ex: 2 orang)";
                 timeField.placeholder = "Input Manual (ex: 24 jam)";
             } else {
@@ -730,37 +890,24 @@
     function checkTimeLogic() {
         const timeVal = document.getElementById('waktu_update').value;
         if (!timeVal) return;
-        
         const dateObj = new Date(timeVal);
         const hours = dateObj.getHours();
         const select = document.getElementById('kondisi_kerja');
         const currentValue = select.value;
 
-        Array.from(select.options).forEach(opt => {
-            if (opt.classList.contains('opt-16')) {
-                select.removeChild(opt);
-            }
-        });
+        Array.from(select.options).forEach(opt => { if (opt.classList.contains('opt-16')) select.removeChild(opt); });
 
         if (hours >= 16) {
             extraOptions.forEach(eo => {
                 const option = document.createElement('option');
-                option.value = eo.value;
-                option.text = eo.text;
-                option.classList.add('opt-16');
+                option.value = eo.value; option.text = eo.text; option.classList.add('opt-16');
                 select.appendChild(option);
             });
-            
-            if (extraOptions.some(eo => eo.value === currentValue)) {
-                select.value = currentValue;
-            }
+            if (extraOptions.some(eo => eo.value === currentValue)) select.value = currentValue;
         } else {
-            if (extraOptions.some(eo => eo.value === currentValue)) {
-                select.value = "Idle Time"; 
-            }
+            if (extraOptions.some(eo => eo.value === currentValue)) select.value = "Idle Time"; 
         }
     }
-    checkTimeLogic();
 
     function renderPendingJobs() {
         const tbody = document.getElementById("pendingTable").querySelector("tbody");
@@ -785,38 +932,140 @@
         else container.classList.add("hidden");
     }
 
-    function renderDashboard() {
-        const tbody = document.getElementById("dashboardTable").querySelector("tbody");
+    // UPDATE: Render History Tabel
+    function renderHistoryTable(data) {
+        const tbody = document.getElementById("historyTable").querySelector("tbody");
         tbody.innerHTML = "";
-        let hasData = false;
+        
+        let items = [];
+        for (let id in data) {
+            let item = data[id];
+            item.firebaseKey = id; 
+            items.push(item);
+        }
+        items.sort((a, b) => b.formNo.localeCompare(a.formNo));
 
-        for (let op in operatorDashboardStats) {
-            hasData = true;
-            const stats = operatorDashboardStats[op];
+        const loggedInUserStr = localStorage.getItem('loggedInUserPTTT');
+        let userRole = "";
+        if (loggedInUserStr) {
+            userRole = JSON.parse(loggedInUserStr).role;
+        }
+
+        items.forEach(item => {
+            let statusHtml = `<strong style="color:var(--warning);">${item.kondisi}</strong>`;
             
-            let statusHtml = `<span class="status-badge status-good">OPTIMAL</span>`;
-            if (stats.lateHours > 0) {
-                statusHtml = `<span class="status-badge status-danger">OVERDUE: ${stats.lateHours.toFixed(1)} Jam</span>`;
-            } else if (stats.productsCompleted === 0) {
-                statusHtml = `<span style="font-size: 11px; color:var(--text-muted)">DALAM PROSES</span>`;
+            // Tampilkan tombol EDIT DEVELOPER yang memicu modal
+            if (userRole === 'Developer') {
+                statusHtml += `<br><button class="btn-edit" onclick="openEditHistoryModal('${item.firebaseKey}')">EDIT SEMUA</button>`;
             }
 
             const tr = document.createElement("tr");
             tr.innerHTML = `
-                <td><strong style="color:var(--neon-cyan)">${op}</strong></td>
-                <td>${stats.productsCompleted} Unit</td>
-                <td>${stats.totalHours.toFixed(1)} Jam</td>
+                <td><strong style="color:var(--neon-cyan);">${item.formNo}</strong></td>
+                <td>${item.waktu}</td>
+                <td>${item.operator}</td>
+                <td>${item.noSpp}</td>
+                <td>${item.namaProduk}</td>
+                <td><span class="status-badge status-good">${item.kategori || 'Reguler'}</span></td>
+                <td>${item.stdWaktu}</td>
                 <td>${statusHtml}</td>
+                <td>${item.alasan}</td>
+                <td>${item.uraian}</td>
+                <td><span style="color:var(--text-muted); font-size:11px;">[${item.foto}]</span></td>
             `;
             tbody.appendChild(tr);
-        }
-        if (!hasData) tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Sistem belum menerima data metrik.</td></tr>`;
+        });
     }
+
+    // ==========================================
+    // FUNGSI EDIT HISTORI (KHUSUS DEVELOPER)
+    // ==========================================
+    function openEditHistoryModal(key) {
+        const loggedInUserStr = localStorage.getItem('loggedInUserPTTT');
+        if (!loggedInUserStr || JSON.parse(loggedInUserStr).role !== 'Developer') {
+            alert("Akses Ditolak: Hanya Developer yang memiliki izin ini.");
+            return;
+        }
+
+        const item = globalHistoryData[key];
+        if(!item) {
+            alert("Gagal memuat data. Coba refresh halaman.");
+            return;
+        }
+
+        // Isi form modal dengan data saat ini
+        document.getElementById('edit_key').value = key;
+        document.getElementById('edit_spp').value = item.noSpp || "";
+        document.getElementById('edit_produk').value = item.namaProduk || "";
+        document.getElementById('edit_kategori').value = item.kategori || "Reguler";
+        
+        // Pengecekan opsi jika tidak ada di dropdown
+        const statusSelect = document.getElementById('edit_status');
+        let hasOption = false;
+        for (let i = 0; i < statusSelect.options.length; i++) {
+            if (statusSelect.options[i].value === item.kondisi) {
+                statusSelect.selectedIndex = i;
+                hasOption = true;
+                break;
+            }
+        }
+        if (!hasOption) {
+            let newOpt = document.createElement("option");
+            newOpt.value = item.kondisi;
+            newOpt.text = item.kondisi;
+            statusSelect.appendChild(newOpt);
+            statusSelect.value = item.kondisi;
+        }
+
+        document.getElementById('edit_stdwaktu').value = item.stdWaktu || "";
+        document.getElementById('edit_alasan').value = item.alasan || "";
+        document.getElementById('edit_uraian').value = item.uraian || "";
+
+        // Tampilkan Modal
+        document.getElementById('editHistoryModal').style.display = "block";
+    }
+
+    function closeEditHistoryModal() {
+        document.getElementById('editHistoryModal').style.display = "none";
+    }
+
+    function submitEditHistory(event) {
+        event.preventDefault();
+        
+        const btnSave = document.getElementById('btn-save-edit');
+        btnSave.innerText = "MENGUBAH DATABASE...";
+        btnSave.disabled = true;
+
+        const key = document.getElementById('edit_key').value;
+        const newData = {
+            noSpp: document.getElementById('edit_spp').value,
+            namaProduk: document.getElementById('edit_produk').value,
+            kategori: document.getElementById('edit_kategori').value,
+            kondisi: document.getElementById('edit_status').value,
+            stdWaktu: document.getElementById('edit_stdwaktu').value,
+            alasan: document.getElementById('edit_alasan').value,
+            uraian: document.getElementById('edit_uraian').value
+        };
+
+        // Eksekusi update langsung ke Firebase pada parameter spesifik
+        db.ref(`history/${key}`).update(newData)
+            .then(() => {
+                alert("✅ Data berhasil diubah secara permanen di server!");
+                closeEditHistoryModal();
+            })
+            .catch((error) => {
+                alert("❌ Gagal merubah database: " + error.message);
+            })
+            .finally(() => {
+                btnSave.innerText = "UBAH DATABASE";
+                btnSave.disabled = false;
+            });
+    }
+
 
     function resumeJob(spp) {
         const job = pendingJobs[spp];
         if(!job) return;
-
         const loggedInUser = JSON.parse(localStorage.getItem('loggedInUserPTTT'));
         if(loggedInUser.name !== job.operator && loggedInUser.role !== 'Developer') {
             alert(`Akses Ditolak: Tugas ini terikat pada operator ${job.operator}.`);
@@ -824,26 +1073,20 @@
         }
 
         document.getElementById("no_spp").value = spp;
-        
         const produkSelect = document.getElementById("nama_produk");
         let isOther = true;
         
         for (let i = 0; i < produkSelect.options.length; i++) {
             if (produkSelect.options[i].value === job.namaProduk) {
-                produkSelect.selectedIndex = i;
-                isOther = false;
-                break;
+                produkSelect.selectedIndex = i; isOther = false; break;
             }
         }
-
         if (isOther) {
             produkSelect.value = "Other";
             document.getElementById("manual_nama_produk").value = job.namaProduk;
         }
 
         updateProductData();
-        datetimePicker.setDate(new Date());
-        checkTimeLogic();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -852,7 +1095,6 @@
         let current = new Date(startStr);
         let endDate = new Date(endStr);
         if (current >= endDate) return 0;
-        
         while (current < endDate) {
             let h = current.getHours();
             if (h !== 12 && h !== 16) totalMinutes++;
@@ -861,14 +1103,19 @@
         return totalMinutes / 60;
     }
 
+    // UPDATE: Penambahan Kategori Pekerjaan ke penyimpanan Histori
     function saveToHistory(event) {
         event.preventDefault();
         
+        const submitBtn = document.getElementById('btn-submit-form');
+        submitBtn.innerText = "MENGIRIM KE CLOUD...";
+        submitBtn.disabled = true;
+
         const operator = JSON.parse(localStorage.getItem('loggedInUserPTTT')).name;
-        
         const waktuUpdate = document.getElementById("waktu_update").value;
         const noSpp = document.getElementById("no_spp").value;
         const kondisi = document.getElementById("kondisi_kerja").value;
+        const kategori = document.getElementById("kategori_pekerjaan").value;
         const stdWaktu = document.getElementById("std_waktu").value;
         const tahapProduksi = document.getElementById("tahap_produksi").value;
         const uraian = document.getElementById("uraian_pekerjaan").value;
@@ -883,6 +1130,8 @@
             alasanKondisi = prompt(`Input justifikasi status pekerjaan "${kondisi}":`);
             if (alasanKondisi === null || alasanKondisi.trim() === "") {
                 alert("Proses digagalkan: Justifikasi wajib diisi.");
+                submitBtn.innerText = "SUBMIT DATA PRODUKSI";
+                submitBtn.disabled = false;
                 return;
             }
         }
@@ -895,11 +1144,7 @@
         if (!spkTracking[noSpp]) {
             let defaultStart = new Date(waktuUpdate);
             defaultStart.setHours(8, 0, 0, 0);
-            spkTracking[noSpp] = { target: targetHours, accumulatedUsed: 0, isFrozen: false, lastStart: defaultStart };
-        }
-
-        if (!operatorDashboardStats[operator]) {
-            operatorDashboardStats[operator] = { totalHours: 0, productsCompleted: 0, lateHours: 0 };
+            spkTracking[noSpp] = { target: targetHours, accumulatedUsed: 0, isFrozen: false, lastStart: defaultStart.toISOString() };
         }
 
         let tracker = spkTracking[noSpp];
@@ -909,15 +1154,18 @@
         if (tracker.isFrozen) {
             alertMessage += `[SYS.LOG] Mengaktifkan ulang kalkulasi waktu dari status FREEZE.\n\n`;
             tracker.isFrozen = false;
-            tracker.lastStart = new Date(waktuUpdate);
+            tracker.lastStart = new Date(waktuUpdate).toISOString();
         } else {
             diffHours = calculateEffectiveHours(tracker.lastStart, waktuUpdate);
             tracker.accumulatedUsed += diffHours;
+            
+            if (!operatorDashboardStats[operator]) {
+                operatorDashboardStats[operator] = { totalHours: 0, productsCompleted: 0, lateHours: 0 };
+            }
             operatorDashboardStats[operator].totalHours += diffHours;
             let sisaJam = tracker.target - tracker.accumulatedUsed;
 
-            const freezeStatuses = ["Idle Time", "Stoppage", "Takeover", "Lanjutkan Besok"];
-            if (freezeStatuses.includes(kondisi)) {
+            if (statusButuhAlasan.includes(kondisi) && kondisi !== "Lembur (Reguler) - 4 Jam" && kondisi !== "Lembur (Sabtu/Minggu) - 9 Jam") {
                 tracker.isFrozen = true;
                 alertMessage += `[STATUS] ${kondisi}\nSistem menghentikan perhitungan waktu sementara (FREEZE).\n\n`;
             }
@@ -928,94 +1176,106 @@
                 alertMessage += `[PERINGATAN SISTEM] Batas standar terlampaui!\nOverdue: ${Math.abs(sisaJam).toFixed(1)} jam.`;
             }
         }
-        alert(alertMessage);
 
         if (kondisi === "Selesai Awal" || kondisi === "Selesai Tepat Waktu") {
-            operatorDashboardStats[operator].productsCompleted += 1;
+            operatorDashboardStats[operator].productsCompleted = (operatorDashboardStats[operator].productsCompleted || 0) + 1;
             let late = tracker.accumulatedUsed - tracker.target;
-            if (late > 0) operatorDashboardStats[operator].lateHours += late;
-            if(pendingJobs[noSpp]) delete pendingJobs[noSpp];
-        } else {
-            pendingJobs[noSpp] = { namaProduk: namaProduk, operator: operator, status: kondisi, tahap: tahapProduksi };
+            if (late > 0) operatorDashboardStats[operator].lateHours = (operatorDashboardStats[operator].lateHours || 0) + late;
         }
-        
-        renderPendingJobs(); 
-        renderDashboard(); 
 
         const dateObj = new Date(waktuUpdate);
         const formattedDate = dateObj.toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).toUpperCase();
-        
         const currentFormNo = getNextFormNumber();
 
-        const tbody = document.getElementById("historyTable").querySelector("tbody");
-        const newRow = document.createElement("tr");
+        const promises = [];
+        const historyRef = db.ref('history').push();
+        
+        // Simpan data beserta kategori
+        promises.push(historyRef.set({
+            formNo: currentFormNo, waktu: formattedDate, operator: operator, noSpp: noSpp,
+            namaProduk: namaProduk, kategori: kategori, stdWaktu: stdWaktu, kondisi: kondisi, 
+            alasan: alasanKondisi, uraian: uraian, foto: fotoName
+        }));
 
-        newRow.innerHTML = `
-            <td><strong style="color:var(--neon-cyan);">${currentFormNo}</strong></td>
-            <td>${formattedDate}</td>
-            <td>${operator}</td>
-            <td>${noSpp}</td>
-            <td>${namaProduk}</td>
-            <td>${stdWaktu}</td>
-            <td><strong style="color:var(--warning);">${kondisi}</strong></td>
-            <td>${alasanKondisi}</td>
-            <td>${uraian}</td>
-            <td><span style="color:var(--text-muted); font-size:11px;">[${fotoName}]</span></td>
-        `;
-        tbody.insertBefore(newRow, tbody.firstChild);
+        if (kondisi === "Selesai Awal" || kondisi === "Selesai Tepat Waktu") {
+            promises.push(db.ref(`pendingJobs/${noSpp}`).remove());
+        } else {
+            promises.push(db.ref(`pendingJobs/${noSpp}`).set({ namaProduk: namaProduk, operator: operator, status: kondisi, tahap: tahapProduksi }));
+        }
+
+        promises.push(db.ref(`operatorDashboardStats/${operator}`).set(operatorDashboardStats[operator]));
 
         let counter = parseInt(localStorage.getItem('formCounterTT')) || 1;
-        localStorage.setItem('formCounterTT', counter + 1);
-        updateFormNumberDisplay();
+        promises.push(db.ref('config/formCounter').set(counter + 1));
 
-        // Reset Form
-        document.getElementById("no_spp").value = "";
-        document.getElementById("no_produksi").value = "";
-        document.getElementById("uraian_pekerjaan").value = "";
-        document.getElementById("foto_aktual").value = "";
-        document.getElementById("tahap_produksi").selectedIndex = 0;
-        datetimePicker.setDate(new Date());
-        checkTimeLogic();
+        Promise.all(promises)
+            .then(() => {
+                alert(alertMessage + "\n\n✅ Transmisi Data Sukses! Data telah tersimpan secara realtime di cloud.");
+                
+                // Reset inputs
+                document.getElementById("no_spp").value = "";
+                document.getElementById("no_produksi").value = "";
+                document.getElementById("uraian_pekerjaan").value = "";
+                document.getElementById("foto_aktual").value = "";
+                document.getElementById("tahap_produksi").selectedIndex = 0;
+            })
+            .catch((error) => {
+                alert("❌ Transmisi Gagal: " + error.message + "\nPastikan aturan database disetel menjadi publik (.read: true, .write: true)");
+            })
+            .finally(() => {
+                submitBtn.innerText = "SUBMIT DATA PRODUKSI";
+                submitBtn.disabled = false;
+            });
     }
 
     function searchTable() {
-        const input = document.getElementById("searchInput");
-        const filter = input.value.toLowerCase();
-        const table = document.getElementById("historyTable");
-        const tr = table.getElementsByTagName("tr");
-
+        const filter = document.getElementById("searchInput").value.toLowerCase();
+        const tr = document.getElementById("historyTable").getElementsByTagName("tr");
         for (let i = 1; i < tr.length; i++) { 
-            let matchFound = false;
+            let match = false;
             let td = tr[i].getElementsByTagName("td");
-            
             for (let j = 0; j < td.length; j++) {
-                if (td[j]) {
-                    if (td[j].innerHTML.toLowerCase().indexOf(filter) > -1) {
-                        matchFound = true;
-                        break;
-                    }
-                }
+                if (td[j] && td[j].innerHTML.toLowerCase().indexOf(filter) > -1) { match = true; break; }
             }
-            if (matchFound) {
-                tr[i].style.display = "";
-            } else {
-                tr[i].style.display = "none";
-            }
+            tr[i].style.display = match ? "" : "none";
         }
     }
 
     function exportToExcel() {
-        const table = document.getElementById("historyTable");
-        let html = table.outerHTML;
-        html = html.replace(/ /g, '%20');
-        const uri = 'data:application/vnd.ms-excel;charset=utf-8,\ufeff' + html;
+        const html = document.getElementById("historyTable").outerHTML.replace(/ /g, '%20');
         const downloadLink = document.createElement("a");
         document.body.appendChild(downloadLink);
-        downloadLink.href = uri;
+        downloadLink.href = 'data:application/vnd.ms-excel;charset=utf-8,\ufeff' + html;
         downloadLink.download = "DB_Histori_Produksi.xls";
         downloadLink.click();
         document.body.removeChild(downloadLink);
     }
+
+    // WAKTU UPDATE OTOMATIS
+    function updateLiveClock() {
+        const now = new Date();
+        const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+        document.getElementById('live_clock').innerHTML = "SYS.TIME: " + now.toLocaleDateString('en-GB', options).toUpperCase();
+
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        
+        const formattedRealTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+        const inputWaktu = document.getElementById('waktu_update');
+
+        if (inputWaktu && inputWaktu.value !== formattedRealTime) {
+            inputWaktu.value = formattedRealTime;
+            checkTimeLogic();
+        }
+    }
+    
+    // Set timer berjalan setiap detik (1000ms)
+    setInterval(updateLiveClock, 1000);
+    updateLiveClock();
+
 </script>
 </body>
 </html>
