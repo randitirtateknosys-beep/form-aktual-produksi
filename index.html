@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Aktual Operator Produksi - PT Tirta Teknosys</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #050914;
+            --glass-bg: rgba(16, 24, 43, 0.6);
+            --glass-border: rgba(0, 243, 255, 0.2);
+            --neon-cyan: #00f3ff;
+            --neon-blue: #007bb5;
+            --text-main: #e2e8f0;
+            --text-muted: #8b9bb4;
+            --input-bg: rgba(0, 0, 0, 0.5);
+            --danger: #ff4757;
+            --warning: #ffa502;
+            --success: #2ed573;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+        
+        body {
+            font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+            background: radial-gradient(circle at top center, #111a30, var(--bg-dark));
+            background-attachment: fixed;
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px 15px;
+            line-height: 1.6;
+        }
+        
+        .d-none, .hidden { display: none !important; }
+        
+        /* Glassmorphism Card Style */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.05);
+        }
+
+        /* Halaman Login */
+        .login-wrapper {
+            max-width: 400px;
+            margin: 10vh auto;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .login-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--neon-cyan);
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
+        }
+        .login-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+        }
+        
+        /* Form Utama */
+        .form-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+        
+        /* HUD Header (Live Clock & Controls) */
+        .live-clock-container {
+            background: rgba(0, 243, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--neon-cyan);
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-size: 15px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: inset 0 0 10px rgba(0, 243, 255, 0.1);
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Buttons */
+        button {
+            font-family: 'Rajdhani', sans-serif;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+        .btn-logout, .btn-password, .btn-submit, .btn-resume, .btn-export {
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .btn-logout { background: rgba(255, 71, 87, 0.2); color: var(--danger); border: 1px solid var(--danger); padding: 6px 12px; font-size: 12px; }
+        .btn-logout:hover { background: var(--danger); color: #fff; box-shadow: 0 0 10px var(--danger); }
+        
+        .btn-password { background: rgba(0, 243, 255, 0.1); color: var(--neon-cyan); border: 1px solid var(--neon-cyan); padding: 6px 12px; font-size: 12px; }
+        .btn-password:hover { background: var(--neon-cyan); color: #000; box-shadow: 0 0 10px var(--neon-cyan); }
+        
+        .btn-submit {
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-cyan));
+            color: #000;
+            font-size: 15px;
+            padding: 12px 24px;
+            width: 100%;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
+        }
+        .btn-submit:hover { box-shadow: 0 0 25px rgba(0, 243, 255, 0.7); transform: translateY(-2px); }
+
+        .btn-resume { background: rgba(255, 165, 2, 0.2); color: var(--warning); border: 1px solid var(--warning); padding: 6px 12px; font-size: 12px; }
+        .btn-resume:hover { background: var(--warning); color: #000; box-shadow: 0 0 10px var(--warning); }
+        
+        .btn-export { background: rgba(46, 213, 115, 0.2); color: var(--success); border: 1px solid var(--success); padding: 8px 16px; font-size: 13px; }
+        .btn-export:hover { background: var(--success); color: #000; box-shadow: 0 0 10px var(--success); }
+
+        /* Header Dokumen */
+        .header-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; border-bottom: 2px solid var(--glass-border); }
+        .company-title { font-size: 24px; font-weight: 700; color: var(--neon-cyan); text-transform: uppercase; letter-spacing: 1px; }
+        .company-subtitle { font-size: 12px; color: var(--text-muted); padding-bottom: 12px; }
+        .doc-meta-right { text-align: right; font-size: 13px; color: var(--text-muted); padding-bottom: 12px; }
+        .main-title { text-align: center; font-size: 20px; font-weight: 700; color: #fff; text-transform: uppercase; margin: 20px 0 30px 0; letter-spacing: 2px; }
+        
+        /* Form Inputs */
+        h2 { font-size: 16px; font-weight: 600; color: var(--neon-cyan); text-transform: uppercase; border-left: 4px solid var(--neon-cyan); padding-left: 10px; text-shadow: 0 0 5px rgba(0, 243, 255, 0.3); }
+        
+        .form-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+        .form-table td { padding: 12px 10px; vertical-align: middle; }
+        .label-cell { width: 30%; font-size: 15px; font-weight: 600; color: var(--text-main); }
+        
+        .form-control {
+            width: 100%;
+            height: 42px;
+            padding: 8px 15px;
+            font-size: 14px;
+            font-family: 'Rajdhani', sans-serif;
+            color: var(--neon-cyan);
+            background-color: var(--input-bg);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        .form-control:focus { outline: none; border-color: var(--neon-cyan); box-shadow: 0 0 10px rgba(0, 243, 255, 0.3); background-color: rgba(0, 0, 0, 0.7); }
+        .form-control::placeholder { color: rgba(255, 255, 255, 0.3); }
+        .form-control option { background-color: var(--bg-dark); color: #fff; }
+        .form-control[readonly], select[readonly] { background-color: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: var(--text-muted); cursor: not-allowed; }
+        textarea.form-control { height: auto; min-height: 90px; resize: vertical; }
+        
+        /* Inline Tables */
+        .target-time-table { width: 100%; border-collapse: collapse; }
+        .target-time-table td { padding: 0 10px 0 0; width: 50%; }
+        .inline-label { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 6px; display: block; }
+        
+        /* Dashboard & History Areas */
+        .dashboard-container, .history-container, .pending-container { 
+            margin-top: 30px; 
+            padding: 25px; 
+        }
+        
+        /* Table Responsive Wrapper */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-top: 15px;
+        }
+
+        .history-table { width: 100%; border-collapse: collapse; font-size: 13px; white-space: nowrap; }
+        .history-table th, .history-table td { border: 1px solid rgba(0, 243, 255, 0.1); padding: 10px; text-align: left; }
+        .history-table th { background-color: rgba(0, 243, 255, 0.1); color: var(--neon-cyan); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .history-table tr { background-color: rgba(255,255,255,0.02); transition: 0.2s; }
+        .history-table tr:hover { background-color: rgba(0, 243, 255, 0.05); }
+        
+        .history-controls { display: flex; justify-content: space-between; align-items: center; gap: 15px; }
+        .search-input { width: 300px; }
+        
+        .status-badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        .status-danger { background: rgba(255, 71, 87, 0.1); color: var(--danger); border: 1px solid var(--danger); }
+        .status-good { background: rgba(46, 213, 115, 0.1); color: var(--success); border: 1px solid var(--success); }
+
+        /* Modal */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
+        .modal-content { background-color: var(--bg-dark); margin: 15vh auto; padding: 30px; border: 1px solid var(--neon-cyan); border-radius: 12px; width: 90%; max-width: 400px; box-shadow: 0 0 30px rgba(0, 243, 255, 0.2); }
+        .close-modal { float: right; font-size: 28px; font-weight: bold; cursor: pointer; color: var(--text-muted); line-height: 1; margin-top: -10px; }
+        .close-modal:hover { color: var(--danger); }
+
+        /* =========================================
+           MEDIA QUERIES (HP & TABLET RESPONSIVE)
+           ========================================= */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .form-wrapper, .login-wrapper { padding: 20px 15px; }
+            
+            /* Susun header vertikal */
+            .live-clock-container { flex-direction: column; gap: 15px; text-align: center; }
+            .header-controls { width: 100%; justify-content: center; flex-wrap: wrap; }
+            .header-controls button { flex: 1; min-width: 120px; }
+            
+            .header-table tr, .header-table td { display: block; text-align: center; padding-right: 0; }
+            .header-table img { width: 70px !important; margin: 0 auto 10px; }
+            .doc-meta-right { text-align: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; }
+            
+            /* Ubah form tabel jadi blok (atas-bawah) */
+            .form-table td { display: block; width: 100%; padding: 6px 0; }
+            .label-cell { color: var(--neon-cyan); font-size: 14px; margin-bottom: 2px; }
+            
+            .target-time-table td { display: block; width: 100%; padding: 0; margin-bottom: 10px; }
+            
+            .history-controls { flex-direction: column; width: 100%; }
+            .search-input, .btn-export { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-wrapper glass-panel" id="login-section">
+    <div class="login-title">
+        <a href="https://imgbb.com/"><img src="https://i.ibb.co.com/PzM0Lypb/logo-tirta-teknosys-1.jpg" alt="logo tirta" border="0" style="width: 70px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 0 10px rgba(255,255,255,0.2);"></a><br>
+        SYSTEM LOGIN
+    </div>
+    <div class="login-subtitle">Otorisasi Akses Operator Produksi</div>
+    <form id="loginForm" onsubmit="handleLogin(event)">
+        <div style="margin-bottom: 15px; text-align: left;">
+            <label style="font-size:13px; font-weight:600; color: var(--text-muted); text-transform: uppercase;">ID Pengguna</label>
+            <select class="form-control" id="login_username" required>
+                <option value="">-- Autentikasi Nama --</option>
+                <option value="Suhendra">Suhendra</option>
+                <option value="Hario Rizki Ardhana">Hario Rizki Ardhana</option>
+                <option value="Dhema Ferlandy Putra">Dhema Ferlandy Putra</option>
+                <option value="Muhammad Iqbal">Muhammad Iqbal</option>
+                <option value="Khairuddin">Khairuddin</option>
+                <option value="Ngatiyo">Ngatiyo</option>
+                <option value="Budi Septiyanto">Budi Septiyanto</option>
+                <option value="Mohammad Ramadan">Mohammad Ramadan</option>
+                <option value="Arliston Sirait">Arliston Sirait</option>
+                <option value="Randi">Randi (Developer)</option>
+            </select>
+        </div>
+        <div style="margin-bottom: 25px; text-align: left;">
+            <label style="font-size:13px; font-weight:600; color: var(--text-muted); text-transform: uppercase;">Kata Sandi</label>
+            <input type="password" class="form-control" id="login_password" placeholder="Masukkan kode sandi..." required>
+        </div>
+        <button type="submit" class="btn-submit">INISIALISASI SISTEM</button>
+    </form>
+</div>
+
+<div id="passwordModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closePasswordModal()">&times;</span>
+        <h3 style="margin-top:0; color:var(--neon-cyan); border-bottom: 1px solid var(--glass-border); padding-bottom:10px; text-transform:uppercase; font-size: 18px;">Ubah Kredensial</h3>
+        <form onsubmit="updatePassword(event)">
+            <div style="margin-bottom: 12px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Sandi Lama</label>
+                <input type="password" class="form-control" id="old_password" required>
+            </div>
+            <div style="margin-bottom: 12px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Sandi Baru</label>
+                <input type="password" class="form-control" id="new_password" required minlength="5">
+            </div>
+            <div style="margin-bottom: 25px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Konfirmasi Sandi Baru</label>
+                <input type="password" class="form-control" id="confirm_password" required minlength="5">
+            </div>
+            <button type="submit" class="btn-submit" style="background: linear-gradient(90deg, #10ac84, #1dd1a1);">SIMPAN KREDENSIAL BARU</button>
+        </form>
+    </div>
+</div>
+
+<div class="form-wrapper glass-panel d-none" id="main-app">
+    <div class="live-clock-container">
+        <div class="header-controls">
+            <span id="header_operator_name" style="color: #fff; font-size: 14px;">[ID: Operator]</span>
+            <button class="btn-password" onclick="openPasswordModal()">Kredensial</button>
+            <button class="btn-logout" onclick="handleLogout()">Terminasi</button>
+        </div>
+        <span id="live_clock" style="font-family: monospace; font-size: 14px;">Memuat sinkronisasi waktu...</span>
+    </div>
+
+    <table class="header-table">
+        <tr>
+            <td style="width: 100px; vertical-align: middle; padding-bottom: 12px; padding-right: 20px;">
+                <a href="https://imgbb.com/"><img src="https://i.ibb.co.com/PzM0Lypb/logo-tirta-teknosys-1.jpg" alt="logo tirta teknosys" border="0" style="width: 100%; height: auto; border-radius: 8px;"></a>
+            </td>
+            <td style="vertical-align: middle;">
+                <div class="company-title">PT Tirta Teknosys</div>
+                <div class="company-subtitle">Water Treatment Plant, IPAL, Water Recycle & Healthcare Systems</div>
+            </td>
+            <td class="doc-meta-right" style="vertical-align: bottom;">
+                <strong>No. Formulir:</strong> <span id="form_no_display" style="color:var(--neon-cyan); font-weight:700;">FM-PRD-AKT-TT-01</span><br>
+                <strong>Revisi:</strong> 00<br>
+                <strong>Halaman:</strong> 1 dari 1
+            </td>
+        </tr>
+    </table>
+
+    <div class="main-title">Input Aktual Produksi</div>
+
+    <form id="produksiForm" onsubmit="saveToHistory(event)">
+        <h2>Data Administrasi</h2>
+        <table class="form-table">
+            <tr>
+                <td class="label-cell">No. SPP Aktif</td>
+                <td class="input-cell">
+                    <input type="text" class="form-control" name="no_spp" id="no_spp" placeholder="Scan/Input No. SPP" required>
+                </td>
+            </tr>
+            <tr>
+                <td class="label-cell">Nama Produk</td>
+                <td class="input-cell">
+                    <select class="form-control" name="nama_produk" id="nama_produk" onchange="updateProductData()" required>
+                        <option value="">-- Pilih Parameter Produk --</option>
+                    </select>
+                </td>
+            </tr>
+            <tr id="row_manual_produk" class="hidden">
+                <td class="label-cell">Nama Produk (Manual)</td>
+                <td class="input-cell">
+                    <input type="text" class="form-control" id="manual_nama_produk" placeholder="Input Nama Produk Manual">
+                </td>
+            </tr>
+            <tr>
+                <td class="label-cell">No. Produksi</td>
+                <td class="input-cell">
+                    <input type="text" class="form-control" name="no_produksi" id="no_produksi" placeholder="Input Serial / Nomor Produksi (Opsional)">
+                </td>
+            </tr>
+        </table>
+
+        <h2>Target Kalibrasi Standar</h2>
+        <table class="form-table">
+            <tr>
+                <td class="label-cell">Parameter Standar</td>
+                <td class="input-cell">
+                    <table class="target-time-table">
+                        <tr>
+                            <td>
+                                <span class="inline-label">Manpower (Operator)</span>
+                                <input type="text" class="form-control" id="std_operator" placeholder="Auto-kalkulasi" readonly>
+                            </td>
+                            <td>
+                                <span class="inline-label">Estimasi Waktu (Jam)</span>
+                                <input type="text" class="form-control" id="std_waktu" placeholder="Auto-kalkulasi" readonly>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+        <h2>Status Eksekusi Lapangan</h2>
+        <table class="form-table">
+            <tr>
+                <td class="label-cell">Sinkronisasi Waktu</td>
+                <td class="input-cell">
+                    <input type="text" class="form-control" name="waktu_update" id="waktu_update" placeholder="Pilih Tanggal dan Waktu" required>
+                </td>
+            </tr>
+            <tr>
+                <td class="label-cell">Status Sistem Kerja</td>
+                <td class="input-cell">
+                    <select class="form-control" name="kondisi_kerja" id="kondisi_kerja">
+                        <option value="Idle Time">Idle Time (Tugas Lain)</option>
+                        <option value="Stoppage">Stoppage (Material Kurang)</option>
+                        <option value="Takeover">Takeover (Overhandle)</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class="label-cell">Fase Produksi</td>
+                <td class="input-cell">
+                    <select class="form-control" name="tahap_produksi" id="tahap_produksi">
+                        <option value="1. Persiapan Material">[Fase 1] Persiapan Material</option>
+                        <option value="2. Perakitan Frame">[Fase 2] Perakitan Frame</option>
+                        <option value="3. Proses Cat / Finishing">[Fase 3] Proses Cat / Finishing</option>
+                        <option value="4. Instalasi Membran/Housing">[Fase 4] Instalasi Membran/Housing</option>
+                        <option value="5. Kelistrikan & Panel">[Fase 5] Kelistrikan & Panel</option>
+                        <option value="6. Running Test & QC">[Fase 6] Running Test & QC</option>
+                        <option value="7. Packing & Selesai (Final)">[Fase 7] Packing & Selesai (Final)</option>
+                        <option value="Other">Fase Lainnya (Other)</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class="label-cell">Log Pekerjaan</td>
+                <td class="input-cell">
+                    <textarea class="form-control" id="uraian_pekerjaan" placeholder="Deskripsikan proses eksekusi..." required></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td class="label-cell">Bukti Visual (Upload)</td>
+                <td class="input-cell">
+                    <input type="file" class="form-control" id="foto_aktual" accept="image/*" style="padding-top:7px; font-size:12px;">
+                </td>
+            </tr>
+        </table>
+
+        <div style="margin-top: 15px;">
+            <button type="submit" class="btn-submit">TRANSMISI DATA PRODUKSI</button>
+        </div>
+    </form>
+
+    <div class="dashboard-container glass-panel" id="dashboardContainer">
+        <h2>📊 Metrik Kinerja Operator</h2>
+        <div class="table-responsive">
+            <table class="history-table" id="dashboardTable">
+                <thead>
+                    <tr>
+                        <th>ID Operator</th>
+                        <th>Output Produk</th>
+                        <th>Akumulasi Waktu</th>
+                        <th>Status Indikator</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Sistem belum menerima data metrik.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="pending-container glass-panel hidden" id="pendingContainer">
+        <h2>⚠️ Antrean Tugas Tertunda</h2>
+        <div class="table-responsive">
+            <table class="history-table" id="pendingTable">
+                <thead>
+                    <tr>
+                        <th>ID SPP</th>
+                        <th>Parameter Produk</th>
+                        <th>Operator Terakhir</th>
+                        <th>Status Terakhir</th>
+                        <th>Tindakan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="history-container glass-panel">
+        <h2>Log Rekam Jejak (Histori)</h2>
+        
+        <div class="history-controls">
+            <input type="text" id="searchInput" class="form-control search-input" onkeyup="searchTable()" placeholder="🔍 Ekstrak data (Ketik ID, Produk, SPP...)">
+            <button class="btn-export" onclick="exportToExcel()">UNDUH DATABASE (.XLS)</button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="history-table" id="historyTable">
+                <thead>
+                    <tr>
+                        <th>Kode Form</th>
+                        <th>Timestamp</th>
+                        <th>Operator</th>
+                        <th>ID SPP</th>
+                        <th>Parameter Produk</th>
+                        <th>Target Waktu</th>
+                        <th>Status</th>
+                        <th>Catatan Khusus</th>
+                        <th>Log Pekerjaan</th>
+                        <th>Visual</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    // ==========================================
+    // SISTEM AUTENTIKASI (LOGIN & GANTI SANDI)
+    // ==========================================
+    const defaultAuthData = {
+        "Suhendra": { role: "produksi", pass: "450316157" },
+        "Hario Rizki Ardhana": { role: "produksi", pass: "2511171107" },
+        "Dhema Ferlandy Putra": { role: "produksi", pass: "251117106" },
+        "Muhammad Iqbal": { role: "produksi", pass: "2511171254" },
+        "Khairuddin": { role: "produksi", pass: "450712103" },
+        "Ngatiyo": { role: "produksi", pass: "45020337" },
+        "Budi Septiyanto": { role: "produksi", pass: "450316158" },
+        "Mohammad Ramadan": { role: "produksi", pass: "2511171286" },
+        "Arliston Sirait": { role: "produksi", pass: "45040564" },
+        "Randi": { role: "Developer", pass: "DV123" }
+    };
+
+    if (!localStorage.getItem('authDataPTTT')) {
+        localStorage.setItem('authDataPTTT', JSON.stringify(defaultAuthData));
+    }
+
+    function checkLoginStatus() {
+        const loggedInUser = localStorage.getItem('loggedInUserPTTT');
+        if (loggedInUser) {
+            document.getElementById('login-section').classList.add('d-none');
+            document.getElementById('main-app').classList.remove('d-none');
+            
+            const userObj = JSON.parse(loggedInUser);
+            document.getElementById('header_operator_name').innerHTML = `[OPR: <strong>${userObj.name}</strong>]`;
+        } else {
+            document.getElementById('login-section').classList.remove('d-none');
+            document.getElementById('main-app').classList.add('d-none');
+        }
+    }
+
+    function handleLogin(event) {
+        event.preventDefault();
+        const user = document.getElementById('login_username').value;
+        const pass = document.getElementById('login_password').value;
+        const dbAuth = JSON.parse(localStorage.getItem('authDataPTTT'));
+
+        if (dbAuth[user] && dbAuth[user].pass === pass) {
+            const userData = { name: user, role: dbAuth[user].role };
+            localStorage.setItem('loggedInUserPTTT', JSON.stringify(userData));
+            checkLoginStatus();
+        } else {
+            alert("Akses Ditolak: Kredensial tidak valid.");
+        }
+    }
+
+    function handleLogout() {
+        if(confirm("Terminasi sesi pengguna saat ini?")) {
+            localStorage.removeItem('loggedInUserPTTT');
+            document.getElementById('login_password').value = "";
+            checkLoginStatus();
+            window.scrollTo(0,0);
+        }
+    }
+
+    function openPasswordModal() {
+        document.getElementById('passwordModal').style.display = "block";
+        document.getElementById('old_password').value = "";
+        document.getElementById('new_password').value = "";
+        document.getElementById('confirm_password').value = "";
+    }
+
+    function closePasswordModal() {
+        document.getElementById('passwordModal').style.display = "none";
+    }
+
+    function updatePassword(event) {
+        event.preventDefault();
+        const loggedInUser = JSON.parse(localStorage.getItem('loggedInUserPTTT'));
+        const dbAuth = JSON.parse(localStorage.getItem('authDataPTTT'));
+
+        const oldPass = document.getElementById('old_password').value;
+        const newPass = document.getElementById('new_password').value;
+        const confirmPass = document.getElementById('confirm_password').value;
+
+        if (dbAuth[loggedInUser.name].pass !== oldPass) {
+            alert("Sandi lama tidak valid.");
+            return;
+        }
+
+        if (newPass !== confirmPass) {
+            alert("Konfirmasi sandi tidak sinkron.");
+            return;
+        }
+
+        dbAuth[loggedInUser.name].pass = newPass;
+        localStorage.setItem('authDataPTTT', JSON.stringify(dbAuth));
+        
+        alert("Kredensial berhasil diperbarui.");
+        closePasswordModal();
+    }
+
+    checkLoginStatus();
+
+    // ==========================================
+    // MANAJEMEN NO FORMULIR AUTO INCREMENT
+    // ==========================================
+    function getNextFormNumber() {
+        let counter = parseInt(localStorage.getItem('formCounterTT')) || 1;
+        return "FM-PRD-AKT-TT-" + String(counter).padStart(2, '0');
+    }
+
+    function updateFormNumberDisplay() {
+        document.getElementById('form_no_display').innerText = getNextFormNumber();
+    }
+    updateFormNumberDisplay();
+
+
+    // ==========================================
+    // JAM AKTUAL, PRODUK, DAN LOGIKA APLIKASI
+    // ==========================================
+    function updateLiveClock() {
+        const now = new Date();
+        const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+        document.getElementById('live_clock').innerHTML = "SYS.TIME: " + now.toLocaleDateString('en-GB', options).toUpperCase();
+    }
+    setInterval(updateLiveClock, 1000);
+    updateLiveClock();
+
+    const productData = {
+        "AQUATECH TRO 250 GPD/R": { op: "2 orang", time: "23 jam" },
+        "AQUATECH TRO 450 GPD/R": { op: "2 orang", time: "23 jam" },
+        "AQUTECH TRO 800 GPD/R": { op: "2 orang", time: "23 jam" },
+        "UPWS-50": { op: "2 orang", time: "23 jam" },
+        "AQUATECH TRO 250 GPD/E": { op: "1 orang", time: "7 jam" },
+        "AQUATECH TRO 450 GPD/E": { op: "1 orang", time: "7 jam" },
+        "AQUATECH TRO 800 GPD/E": { op: "1 orang", time: "7 jam" },
+        "AQUATECH TRO 1500 GPD/S": { op: "2 orang", time: "24 jam" },
+        "AQUATECH TRO 3000 GPD/S": { op: "2 orang", time: "24 jam" },
+        "AQUATECH TRO 4500 GPD/S": { op: "2 orang", time: "24 jam" },
+        "AQUATECH TRO 6000 GPD/S": { op: "2 orang", time: "24 jam" },
+        "AQUATECH TRO 3000 GPD/BRX": { op: "2 orang", time: "24 jam" },
+        "AQUATECH TRO 4500 GPD/BRX": { op: "2 orang", time: "24 jam" },
+        "AQUATECH TRO 6000 GPD/BRX": { op: "2 orang", time: "24 jam" },
+        "AQUATECH TRO 1500 GPD/MX": { op: "2 orang", time: "24 jam" },
+        "AQUATECH TRO 3000 GPD/MX": { op: "2 orang", time: "24 jam" },
+        "AQUATECH TRO 4500 GPD/MX": { op: "2 orang", time: "24 jam" },
+        "AQUATECH TRO 6000 GPD/MX": { op: "2 orang", time: "24 jam" },
+        "AQUATECH TRO 1500 GPD/L": { op: "2 orang", time: "24 jam" },
+        "AQUATECH TRO 3000 GPD/L": { op: "2 orang", time: "24 jam" },
+        "AQUATECH TRO 4500 GPD/L": { op: "2 orang", time: "24 jam" },
+        "AQUATECH TRO 6000 GPD/L": { op: "2 orang", time: "24 jam" },
+        "FLOOR STANDING": { op: "2 orang", time: "24 jam" },
+        "EF": { op: "1 orang", time: "7 jam" },
+        "TRO MOBILE MH3": { op: "2 orang", time: "24 jam" },
+        "UF BEAVER 8.0 AD": { op: "2 orang", time: "24 jam" },
+        "UF BEAVER 4.0 AD": { op: "2 orang", time: "24 jam" },
+        "UF BEAVER 2.0 AD": { op: "2 orang", time: "7 jam" },
+        "UF BEAVER 24.0 AD": { op: "2 orang", time: "48 jam" },
+        "FRAME TRO 3000 6000 GPD BRX": { op: "2 orang", time: "15 jam" },
+        "FRAME TRO 250 - 800 GPD / E": { op: "2 orang", time: "15 jam" },
+        "FRAME TRO 250 - 800 GPD / R": { op: "2 orang", time: "15 jam" },
+        "FRAME UF 4.0 & 8.0 AD": { op: "2 orang", time: "15 jam" },
+        "FRAME UF 2.0 AD": { op: "2 orang", time: "7 jam" },
+        "FRAME UF 24.0 AD": { op: "2 orang", time: "24 jam" },
+        "FRAME WTP ZOOMBA": { op: "2 orang", time: "30 jam" },
+        "FRAME FLOOR STANDING": { op: "2 orang", time: "15 jam" },
+        "FRAME EF": { op: "1 orang", time: "7 jam" },
+        "FRAME TRO MOBILE MH3": { op: "2 front orang", time: "15 jam" },
+        "SUPPORT POMPA TANKI": { op: "1 orang", time: "7 jam" },
+        "FRAME UPWS": { op: "2 orang", time: "15 jam" },
+        "RENALPRO R-104": { op: "2 orang", time: "40 jam" },
+        "RENALPRO R-404": { op: "2 orang", time: "40 jam" },
+        "WTP ZOOMBA": { op: "2 orang", time: "15 jam" },
+        "PANEL CONDUCTIVITY": { op: "1 orang", time: "4 jam" },
+        "PANEL SBR PIK": { op: "2 orang", time: "53 jam" },
+        "PANEL LIFT PUMP": { op: "1 orang", time: "24 jam" },
+        "PANEL SISTEM STP": { op: "1 orang", time: "24 jam" },
+        "PANEL SISTEM WTP": { op: "1 orang", time: "24 jam" },
+        "PANEL SISTEM IPAL": { op: "1 orang", time: "24 jam" },
+        "PANEL UPWS": { op: "1 orang", time: "12 jam" },
+        "HANDLE AQUATECH S.O AD 2.O AD": { op: "1 orang", time: "1 jam" },
+        "HANDLE AQUATECH O.R 2.O AD": { op: "1 orang", time: "1 jam" },
+        "HANDLE AQUATECH M.B 2.O MS": { op: "1 orang", time: "1 jam" },
+        "PRE FILTRATION MX": { op: "2 orang", time: "16 jam" },
+        "Other": { op: "", time: "" }
+    };
+
+    const spkTracking = {}; 
+    const pendingJobs = {}; 
+    const operatorDashboardStats = {}; 
+
+    const extraOptions = [
+        { value: "Selesai Awal", text: "Pekerjaan Selesai Awal" },
+        { value: "Selesai Tepat Waktu", text: "Pekerjaan Selesai Tepat Waktu" },
+        { value: "Lanjutkan Besok", text: "Lanjutkan Besok" },
+        { value: "Lembur (Reguler) - 4 Jam", text: "Lembur (Reguler) - 4 Jam" },
+        { value: "Lembur (Sabtu/Minggu) - 9 Jam", text: "Lembur (Sabtu/Minggu) - 9 Jam" }
+    ];
+
+    const selectProduk = document.getElementById("nama_produk");
+    for (let key in productData) {
+        let option = document.createElement("option");
+        option.value = key;
+        option.text = key;
+        selectProduk.appendChild(option);
+    }
+
+    const datetimePicker = flatpickr("#waktu_update", {
+        enableTime: true,
+        time_24hr: true,
+        dateFormat: "Y-m-d\\TH:i",
+        defaultDate: new Date(),
+        onChange: function(selectedDates, dateStr, instance) {
+            checkTimeLogic();
+        }
+    });
+
+    function updateProductData() {
+        const selected = selectProduk.value;
+        const opField = document.getElementById("std_operator");
+        const timeField = document.getElementById("std_waktu");
+        const manualRow = document.getElementById("row_manual_produk");
+        const manualInput = document.getElementById("manual_nama_produk");
+
+        if (selected && productData[selected]) {
+            if (selected === "Other") {
+                manualRow.classList.remove("hidden");
+                manualInput.setAttribute("required", "true");
+                opField.removeAttribute("readonly");
+                timeField.removeAttribute("readonly");
+                opField.value = "";
+                timeField.value = "";
+                opField.placeholder = "Input Manual (ex: 2 orang)";
+                timeField.placeholder = "Input Manual (ex: 24 jam)";
+            } else {
+                manualRow.classList.add("hidden");
+                manualInput.removeAttribute("required");
+                opField.setAttribute("readonly", "true");
+                timeField.setAttribute("readonly", "true");
+                opField.value = productData[selected].op;
+                timeField.value = productData[selected].time;
+            }
+        }
+    }
+
+    function checkTimeLogic() {
+        const timeVal = document.getElementById('waktu_update').value;
+        if (!timeVal) return;
+        
+        const dateObj = new Date(timeVal);
+        const hours = dateObj.getHours();
+        const select = document.getElementById('kondisi_kerja');
+        const currentValue = select.value;
+
+        Array.from(select.options).forEach(opt => {
+            if (opt.classList.contains('opt-16')) {
+                select.removeChild(opt);
+            }
+        });
+
+        if (hours >= 16) {
+            extraOptions.forEach(eo => {
+                const option = document.createElement('option');
+                option.value = eo.value;
+                option.text = eo.text;
+                option.classList.add('opt-16');
+                select.appendChild(option);
+            });
+            
+            if (extraOptions.some(eo => eo.value === currentValue)) {
+                select.value = currentValue;
+            }
+        } else {
+            if (extraOptions.some(eo => eo.value === currentValue)) {
+                select.value = "Idle Time"; 
+            }
+        }
+    }
+    checkTimeLogic();
+
+    function renderPendingJobs() {
+        const tbody = document.getElementById("pendingTable").querySelector("tbody");
+        const container = document.getElementById("pendingContainer");
+        tbody.innerHTML = "";
+        let hasPending = false;
+
+        for (let spp in pendingJobs) {
+            const job = pendingJobs[spp];
+            hasPending = true;
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><strong style="color:var(--neon-cyan)">${spp}</strong></td>
+                <td>${job.namaProduk}</td>
+                <td>${job.operator}</td>
+                <td><span class="status-badge status-danger">${job.status}</span></td>
+                <td><button type="button" class="btn-resume" onclick="resumeJob('${spp}')">LANJUTKAN</button></td>
+            `;
+            tbody.appendChild(tr);
+        }
+        if (hasPending) container.classList.remove("hidden");
+        else container.classList.add("hidden");
+    }
+
+    function renderDashboard() {
+        const tbody = document.getElementById("dashboardTable").querySelector("tbody");
+        tbody.innerHTML = "";
+        let hasData = false;
+
+        for (let op in operatorDashboardStats) {
+            hasData = true;
+            const stats = operatorDashboardStats[op];
+            
+            let statusHtml = `<span class="status-badge status-good">OPTIMAL</span>`;
+            if (stats.lateHours > 0) {
+                statusHtml = `<span class="status-badge status-danger">OVERDUE: ${stats.lateHours.toFixed(1)} Jam</span>`;
+            } else if (stats.productsCompleted === 0) {
+                statusHtml = `<span style="font-size: 11px; color:var(--text-muted)">DALAM PROSES</span>`;
+            }
+
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><strong style="color:var(--neon-cyan)">${op}</strong></td>
+                <td>${stats.productsCompleted} Unit</td>
+                <td>${stats.totalHours.toFixed(1)} Jam</td>
+                <td>${statusHtml}</td>
+            `;
+            tbody.appendChild(tr);
+        }
+        if (!hasData) tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Sistem belum menerima data metrik.</td></tr>`;
+    }
+
+    function resumeJob(spp) {
+        const job = pendingJobs[spp];
+        if(!job) return;
+
+        const loggedInUser = JSON.parse(localStorage.getItem('loggedInUserPTTT'));
+        if(loggedInUser.name !== job.operator && loggedInUser.role !== 'Developer') {
+            alert(`Akses Ditolak: Tugas ini terikat pada operator ${job.operator}.`);
+            return;
+        }
+
+        document.getElementById("no_spp").value = spp;
+        
+        const produkSelect = document.getElementById("nama_produk");
+        let isOther = true;
+        
+        for (let i = 0; i < produkSelect.options.length; i++) {
+            if (produkSelect.options[i].value === job.namaProduk) {
+                produkSelect.selectedIndex = i;
+                isOther = false;
+                break;
+            }
+        }
+
+        if (isOther) {
+            produkSelect.value = "Other";
+            document.getElementById("manual_nama_produk").value = job.namaProduk;
+        }
+
+        updateProductData();
+        datetimePicker.setDate(new Date());
+        checkTimeLogic();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function calculateEffectiveHours(startStr, endStr) {
+        let totalMinutes = 0;
+        let current = new Date(startStr);
+        let endDate = new Date(endStr);
+        if (current >= endDate) return 0;
+        
+        while (current < endDate) {
+            let h = current.getHours();
+            if (h !== 12 && h !== 16) totalMinutes++;
+            current.setMinutes(current.getMinutes() + 1);
+        }
+        return totalMinutes / 60;
+    }
+
+    function saveToHistory(event) {
+        event.preventDefault();
+        
+        const operator = JSON.parse(localStorage.getItem('loggedInUserPTTT')).name;
+        
+        const waktuUpdate = document.getElementById("waktu_update").value;
+        const noSpp = document.getElementById("no_spp").value;
+        const kondisi = document.getElementById("kondisi_kerja").value;
+        const stdWaktu = document.getElementById("std_waktu").value;
+        const tahapProduksi = document.getElementById("tahap_produksi").value;
+        const uraian = document.getElementById("uraian_pekerjaan").value;
+        
+        let namaProduk = document.getElementById("nama_produk").value;
+        if(namaProduk === "Other") namaProduk = document.getElementById("manual_nama_produk").value;
+
+        const statusButuhAlasan = ["Idle Time", "Stoppage", "Takeover", "Lanjutkan Besok", "Lembur (Reguler) - 4 Jam", "Lembur (Sabtu/Minggu) - 9 Jam"];
+        let alasanKondisi = "-";
+
+        if (statusButuhAlasan.includes(kondisi)) {
+            alasanKondisi = prompt(`Input justifikasi status pekerjaan "${kondisi}":`);
+            if (alasanKondisi === null || alasanKondisi.trim() === "") {
+                alert("Proses digagalkan: Justifikasi wajib diisi.");
+                return;
+            }
+        }
+
+        const fileInput = document.getElementById('foto_aktual');
+        let fotoName = "TIDAK ADA";
+        if (fileInput.files.length > 0) fotoName = fileInput.files[0].name;
+
+        let targetHours = parseInt(stdWaktu) || 0;
+        if (!spkTracking[noSpp]) {
+            let defaultStart = new Date(waktuUpdate);
+            defaultStart.setHours(8, 0, 0, 0);
+            spkTracking[noSpp] = { target: targetHours, accumulatedUsed: 0, isFrozen: false, lastStart: defaultStart };
+        }
+
+        if (!operatorDashboardStats[operator]) {
+            operatorDashboardStats[operator] = { totalHours: 0, productsCompleted: 0, lateHours: 0 };
+        }
+
+        let tracker = spkTracking[noSpp];
+        let alertMessage = "";
+        let diffHours = 0;
+
+        if (tracker.isFrozen) {
+            alertMessage += `[SYS.LOG] Mengaktifkan ulang kalkulasi waktu dari status FREEZE.\n\n`;
+            tracker.isFrozen = false;
+            tracker.lastStart = new Date(waktuUpdate);
+        } else {
+            diffHours = calculateEffectiveHours(tracker.lastStart, waktuUpdate);
+            tracker.accumulatedUsed += diffHours;
+            operatorDashboardStats[operator].totalHours += diffHours;
+            let sisaJam = tracker.target - tracker.accumulatedUsed;
+
+            const freezeStatuses = ["Idle Time", "Stoppage", "Takeover", "Lanjutkan Besok"];
+            if (freezeStatuses.includes(kondisi)) {
+                tracker.isFrozen = true;
+                alertMessage += `[STATUS] ${kondisi}\nSistem menghentikan perhitungan waktu sementara (FREEZE).\n\n`;
+            }
+
+            if (sisaJam >= 0) {
+                alertMessage += `[AKUMULASI WAKTU] Tercatat: ${diffHours.toFixed(1)} jam.\nTotal waktu SPP: ${tracker.accumulatedUsed.toFixed(1)} jam.\nSisa margin waktu: ${sisaJam.toFixed(1)} jam.`;
+            } else {
+                alertMessage += `[PERINGATAN SISTEM] Batas standar terlampaui!\nOverdue: ${Math.abs(sisaJam).toFixed(1)} jam.`;
+            }
+        }
+        alert(alertMessage);
+
+        if (kondisi === "Selesai Awal" || kondisi === "Selesai Tepat Waktu") {
+            operatorDashboardStats[operator].productsCompleted += 1;
+            let late = tracker.accumulatedUsed - tracker.target;
+            if (late > 0) operatorDashboardStats[operator].lateHours += late;
+            if(pendingJobs[noSpp]) delete pendingJobs[noSpp];
+        } else {
+            pendingJobs[noSpp] = { namaProduk: namaProduk, operator: operator, status: kondisi, tahap: tahapProduksi };
+        }
+        
+        renderPendingJobs(); 
+        renderDashboard(); 
+
+        const dateObj = new Date(waktuUpdate);
+        const formattedDate = dateObj.toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).toUpperCase();
+        
+        const currentFormNo = getNextFormNumber();
+
+        const tbody = document.getElementById("historyTable").querySelector("tbody");
+        const newRow = document.createElement("tr");
+
+        newRow.innerHTML = `
+            <td><strong style="color:var(--neon-cyan);">${currentFormNo}</strong></td>
+            <td>${formattedDate}</td>
+            <td>${operator}</td>
+            <td>${noSpp}</td>
+            <td>${namaProduk}</td>
+            <td>${stdWaktu}</td>
+            <td><strong style="color:var(--warning);">${kondisi}</strong></td>
+            <td>${alasanKondisi}</td>
+            <td>${uraian}</td>
+            <td><span style="color:var(--text-muted); font-size:11px;">[${fotoName}]</span></td>
+        `;
+        tbody.insertBefore(newRow, tbody.firstChild);
+
+        let counter = parseInt(localStorage.getItem('formCounterTT')) || 1;
+        localStorage.setItem('formCounterTT', counter + 1);
+        updateFormNumberDisplay();
+
+        // Reset Form
+        document.getElementById("no_spp").value = "";
+        document.getElementById("no_produksi").value = "";
+        document.getElementById("uraian_pekerjaan").value = "";
+        document.getElementById("foto_aktual").value = "";
+        document.getElementById("tahap_produksi").selectedIndex = 0;
+        datetimePicker.setDate(new Date());
+        checkTimeLogic();
+    }
+
+    function searchTable() {
+        const input = document.getElementById("searchInput");
+        const filter = input.value.toLowerCase();
+        const table = document.getElementById("historyTable");
+        const tr = table.getElementsByTagName("tr");
+
+        for (let i = 1; i < tr.length; i++) { 
+            let matchFound = false;
+            let td = tr[i].getElementsByTagName("td");
+            
+            for (let j = 0; j < td.length; j++) {
+                if (td[j]) {
+                    if (td[j].innerHTML.toLowerCase().indexOf(filter) > -1) {
+                        matchFound = true;
+                        break;
+                    }
+                }
+            }
+            if (matchFound) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+
+    function exportToExcel() {
+        const table = document.getElementById("historyTable");
+        let html = table.outerHTML;
+        html = html.replace(/ /g, '%20');
+        const uri = 'data:application/vnd.ms-excel;charset=utf-8,\ufeff' + html;
+        const downloadLink = document.createElement("a");
+        document.body.appendChild(downloadLink);
+        downloadLink.href = uri;
+        downloadLink.download = "DB_Histori_Produksi.xls";
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+    }
+</script>
+</body>
+</html>
