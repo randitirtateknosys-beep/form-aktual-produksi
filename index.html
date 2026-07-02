@@ -24,6 +24,7 @@
             --danger: #ff4757;
             --warning: #ffa502;
             --success: #2ed573;
+            --gold: #f1c40f;
         }
 
         *, *::before, *::after { box-sizing: border-box; }
@@ -48,6 +49,12 @@
             border: 1px solid var(--glass-border);
             border-radius: 12px;
             box-shadow: 0 0 20px rgba(0, 243, 255, 0.05);
+        }
+        
+        /* Highlight border for Developer Dashboard */
+        .kpi-panel {
+            border: 1px solid var(--gold);
+            box-shadow: 0 0 20px rgba(241, 196, 15, 0.1);
         }
 
         /* Halaman Login */
@@ -107,7 +114,7 @@
             letter-spacing: 0.5px;
             transition: all 0.3s ease;
         }
-        .btn-logout, .btn-password, .btn-submit, .btn-resume, .btn-export, .btn-edit {
+        .btn-logout, .btn-password, .btn-submit, .btn-resume, .btn-export, .btn-edit, .btn-delete {
             border: none;
             border-radius: 4px;
             cursor: pointer;
@@ -140,6 +147,9 @@
         .btn-edit { background: rgba(0, 243, 255, 0.15); color: var(--neon-cyan); border: 1px solid var(--neon-cyan); padding: 4px 8px; font-size: 10px; margin-top: 6px; }
         .btn-edit:hover { background: var(--neon-cyan); color: #000; box-shadow: 0 0 8px var(--neon-cyan); }
 
+        .btn-delete { background: rgba(255, 71, 87, 0.15); color: var(--danger); border: 1px solid var(--danger); padding: 4px 8px; font-size: 10px; margin-top: 6px; margin-left: 4px; }
+        .btn-delete:hover { background: var(--danger); color: #fff; box-shadow: 0 0 8px var(--danger); }
+
         /* Header Dokumen & Penyesuaian Logo */
         .header-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; border-bottom: 2px solid var(--glass-border); }
         .logo-container-login img { width: 110px; height: auto; margin: 0 auto 15px; display: block; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 243, 255, 0.2); }
@@ -151,6 +161,7 @@
         
         /* Form Inputs */
         h2 { font-size: 16px; font-weight: 600; color: var(--neon-cyan); text-transform: uppercase; border-left: 4px solid var(--neon-cyan); padding-left: 10px; text-shadow: 0 0 5px rgba(0, 243, 255, 0.3); }
+        .kpi-title { color: var(--gold); border-left-color: var(--gold); text-shadow: 0 0 5px rgba(241, 196, 15, 0.3); }
         
         .form-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
         .form-table td { padding: 12px 10px; vertical-align: middle; }
@@ -196,6 +207,7 @@
         .history-table { width: 100%; border-collapse: collapse; font-size: 13px; white-space: nowrap; }
         .history-table th, .history-table td { border: 1px solid rgba(0, 243, 255, 0.1); padding: 10px; text-align: left; }
         .history-table th { background-color: rgba(0, 243, 255, 0.1); color: var(--neon-cyan); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .kpi-table th { background-color: rgba(241, 196, 15, 0.1); color: var(--gold); }
         .history-table tr { background-color: rgba(255,255,255,0.02); transition: 0.2s; }
         .history-table tr:hover { background-color: rgba(0, 243, 255, 0.05); }
         
@@ -205,6 +217,7 @@
         .status-badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
         .status-danger { background: rgba(255, 71, 87, 0.1); color: var(--danger); border: 1px solid var(--danger); }
         .status-good { background: rgba(46, 213, 115, 0.1); color: var(--success); border: 1px solid var(--success); }
+        .status-kpi { background: rgba(241, 196, 15, 0.1); color: var(--gold); border: 1px solid var(--gold); }
 
         /* Modal */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); overflow-y: auto;}
@@ -239,7 +252,6 @@
 </head>
 <body>
 
-<!-- HALAMAN LOGIN BARU -->
 <div class="login-wrapper glass-panel" id="login-section">
     <div class="login-title">
         <div class="logo-container-login">
@@ -249,7 +261,7 @@
     </div>
     <div class="login-subtitle">
         Selamat Datang!<br>
-        Silakan masukkan kata sandi unik Anda untuk masuk ke sistem. Sistem akan mengenali identitas Anda secara otomatis.
+        Silakan masukkan kata sandi unik Anda untuk masuk ke sistem.
     </div>
     <form id="loginForm" onsubmit="handleLogin(event)">
         <div style="margin-bottom: 25px; text-align: left;">
@@ -260,7 +272,6 @@
     </form>
 </div>
 
-<!-- MODAL UBAH SANDI -->
 <div id="passwordModal" class="modal">
     <div class="modal-content">
         <span class="close-modal" onclick="closePasswordModal()">&times;</span>
@@ -283,7 +294,6 @@
     </div>
 </div>
 
-<!-- MODAL EDIT DATA HISTORI (KHUSUS DEVELOPER) -->
 <div id="editHistoryModal" class="modal">
     <div class="modal-content" style="max-width: 500px;">
         <span class="close-modal" onclick="closeEditHistoryModal()">&times;</span>
@@ -307,6 +317,7 @@
                     <option value="Reguler">Reguler</option>
                     <option value="Buffer">Buffer</option>
                     <option value="Emergency">Emergency</option>
+                    <option value="Other">Lainnya (Other)</option>
                 </select>
             </div>
             <div style="margin-bottom: 12px;">
@@ -320,6 +331,7 @@
                     <option value="Lanjutkan Besok">Lanjutkan Besok</option>
                     <option value="Lembur (Reguler) - 4 Jam">Lembur (Reguler) - 4 Jam</option>
                     <option value="Lembur (Sabtu/Minggu) - 9 Jam">Lembur (Sabtu/Minggu) - 9 Jam</option>
+                    <option value="Other">Lainnya (Other)</option>
                 </select>
             </div>
             <div style="margin-bottom: 12px;">
@@ -338,7 +350,6 @@
         </form>
     </div>
 </div>
-
 
 <div class="form-wrapper glass-panel d-none" id="main-app">
     <div class="live-clock-container">
@@ -376,10 +387,9 @@
         <table class="form-table">
             <tr>
                 <td class="label-cell">No. SPP Aktif</td>
-                <td class="input-cell">
-                    <input type="text" class="form-control" name="no_spp" id="no_spp" placeholder="Scan/Input No. SPP" required>
-                </td>
+                <td class="input-cell"><input type="text" class="form-control" name="no_spp" id="no_spp" placeholder="Scan/Input No. SPP" required></td>
             </tr>
+            
             <tr>
                 <td class="label-cell">Nama Produk</td>
                 <td class="input-cell">
@@ -389,27 +399,29 @@
                 </td>
             </tr>
             <tr id="row_manual_produk" class="hidden">
-                <td class="label-cell">Nama Produk (Manual)</td>
-                <td class="input-cell">
-                    <input type="text" class="form-control" id="manual_nama_produk" placeholder="Input Nama Produk Manual">
-                </td>
+                <td class="label-cell" style="font-size: 12px; color: var(--warning);">↳ Ketik Nama Produk:</td>
+                <td class="input-cell"><input type="text" class="form-control" id="manual_nama_produk" placeholder="Input Nama Produk Manual"></td>
             </tr>
+            
             <tr>
                 <td class="label-cell">No. Produksi</td>
-                <td class="input-cell">
-                    <input type="text" class="form-control" name="no_produksi" id="no_produksi" placeholder="Input Serial / Nomor Produksi (Opsional)">
-                </td>
+                <td class="input-cell"><input type="text" class="form-control" name="no_produksi" id="no_produksi" placeholder="Input Serial / Nomor Produksi (Opsional)"></td>
             </tr>
-            <!-- TAMBAHAN: Kategori Pekerjaan -->
+            
             <tr>
                 <td class="label-cell">Kategori Pekerjaan</td>
                 <td class="input-cell">
-                    <select class="form-control" name="kategori_pekerjaan" id="kategori_pekerjaan" required>
+                    <select class="form-control" name="kategori_pekerjaan" id="kategori_pekerjaan" onchange="toggleManualOption(this, 'row_manual_kategori', 'manual_kategori')" required>
                         <option value="Reguler">Reguler</option>
                         <option value="Buffer">Buffer</option>
                         <option value="Emergency">Emergency</option>
+                        <option value="Other">Lainnya (Other)</option>
                     </select>
                 </td>
+            </tr>
+            <tr id="row_manual_kategori" class="hidden">
+                <td class="label-cell" style="font-size: 12px; color: var(--warning);">↳ Ketik Kategori Manual:</td>
+                <td class="input-cell"><input type="text" class="form-control" id="manual_kategori" placeholder="Input Kategori Lainnya"></td>
             </tr>
         </table>
 
@@ -421,7 +433,7 @@
                     <table class="target-time-table">
                         <tr>
                             <td>
-                                <span class="inline-label">Manpower (Operator)</span>
+                                <span class="inline-label">Standar Manpower</span>
                                 <input type="text" class="form-control" id="std_operator" placeholder="Auto-kalkulasi" readonly>
                             </td>
                             <td>
@@ -438,24 +450,29 @@
         <table class="form-table">
             <tr>
                 <td class="label-cell">Sinkronisasi Waktu</td>
-                <td class="input-cell">
-                    <input type="text" class="form-control" name="waktu_update" id="waktu_update" readonly required style="cursor: not-allowed; background-color: rgba(255,255,255,0.05); color: var(--neon-cyan);">
-                </td>
+                <td class="input-cell"><input type="text" class="form-control" name="waktu_update" id="waktu_update" readonly required style="cursor: not-allowed; background-color: rgba(255,255,255,0.05); color: var(--neon-cyan);"></td>
             </tr>
+            
             <tr>
                 <td class="label-cell">Status Sistem Kerja</td>
                 <td class="input-cell">
-                    <select class="form-control" name="kondisi_kerja" id="kondisi_kerja">
+                    <select class="form-control" name="kondisi_kerja" id="kondisi_kerja" onchange="toggleManualOption(this, 'row_manual_kondisi', 'manual_kondisi')">
                         <option value="Idle Time">Idle Time (Tugas Lain)</option>
                         <option value="Stoppage">Stoppage (Material Kurang)</option>
                         <option value="Takeover">Takeover (Overhandle)</option>
+                        <option value="Other" class="opt-other">Lainnya (Other)</option>
                     </select>
                 </td>
             </tr>
+            <tr id="row_manual_kondisi" class="hidden">
+                <td class="label-cell" style="font-size: 12px; color: var(--warning);">↳ Ketik Status Manual:</td>
+                <td class="input-cell"><input type="text" class="form-control" id="manual_kondisi" placeholder="Input Status Lainnya"></td>
+            </tr>
+            
             <tr>
                 <td class="label-cell">Fase Produksi</td>
                 <td class="input-cell">
-                    <select class="form-control" name="tahap_produksi" id="tahap_produksi">
+                    <select class="form-control" name="tahap_produksi" id="tahap_produksi" onchange="toggleManualOption(this, 'row_manual_tahap', 'manual_tahap')">
                         <option value="1. Persiapan Material">[Fase 1] Persiapan Material</option>
                         <option value="2. Perakitan Frame">[Fase 2] Perakitan Frame</option>
                         <option value="3. Proses Cat / Finishing">[Fase 3] Proses Cat / Finishing</option>
@@ -467,16 +484,19 @@
                     </select>
                 </td>
             </tr>
+            <tr id="row_manual_tahap" class="hidden">
+                <td class="label-cell" style="font-size: 12px; color: var(--warning);">↳ Ketik Fase Manual:</td>
+                <td class="input-cell"><input type="text" class="form-control" id="manual_tahap" placeholder="Input Fase Lainnya"></td>
+            </tr>
+            
             <tr>
                 <td class="label-cell">Log Pekerjaan</td>
-                <td class="input-cell">
-                    <textarea class="form-control" id="uraian_pekerjaan" placeholder="Deskripsikan proses eksekusi..." required></textarea>
-                </td>
+                <td class="input-cell"><textarea class="form-control" id="uraian_pekerjaan" placeholder="Deskripsikan proses eksekusi..." required></textarea></td>
             </tr>
             <tr>
                 <td class="label-cell">Bukti Visual (Upload)</td>
                 <td class="input-cell">
-                    <input type="file" class="form-control" id="foto_aktual" accept="image/*" style="padding-top:7px; font-size:12px;">
+                    <input type="file" class="form-control" id="foto_aktual" accept="image/*" multiple style="padding-top:7px; font-size:12px;">
                 </td>
             </tr>
         </table>
@@ -500,6 +520,29 @@
                 </thead>
                 <tbody>
                     <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Sistem belum menerima data metrik.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="dashboard-container glass-panel kpi-panel hidden" id="kpiDashboardContainer">
+        <h2 class="kpi-title">🏆 Dashboard KPI & Evaluasi (Khusus Eksekutif)</h2>
+        <p style="font-size:12px; color:var(--text-muted); margin-top:-10px; margin-bottom:15px;">
+            *Penilaian: Tepat Waktu = 100 | Selesai Awal = 110 | Terlambat(Lembur) = 80 | Penalti Jumlah Pekerja = -15 Poin/Kelebihan Orang | Bonus Hemat Pekerja = +10 Poin.
+        </p>
+        <div class="table-responsive">
+            <table class="history-table kpi-table" id="kpiTable">
+                <thead>
+                    <tr>
+                        <th>Nama Operator</th>
+                        <th>Total SPP Selesai</th>
+                        <th>Selesai Awal (+Bonus)</th>
+                        <th>Tepat Waktu (Standar)</th>
+                        <th>Lembur (Terlambat)</th>
+                        <th>SKOR RATA-RATA</th>
+                    </tr>
+                </thead>
+                <tbody>
                 </tbody>
             </table>
         </div>
@@ -590,7 +633,7 @@
     const spkTracking = {}; 
     const pendingJobs = {}; 
     const operatorDashboardStats = {};
-    let globalHistoryData = {}; // Digunakan untuk mempermudah edit data
+    let globalHistoryData = {}; 
 
     // ==========================================
     // DATA PRODUK & INITIALISASI ARRAY
@@ -634,7 +677,7 @@
         "FRAME WTP ZOOMBA": { op: "2 orang", time: "30 jam" },
         "FRAME FLOOR STANDING": { op: "2 orang", time: "15 jam" },
         "FRAME EF": { op: "1 orang", time: "7 jam" },
-        "FRAME TRO MOBILE MH3": { op: "2 front orang", time: "15 jam" },
+        "FRAME TRO MOBILE MH3": { op: "2 orang", time: "15 jam" },
         "SUPPORT POMPA TANKI": { op: "1 orang", time: "7 jam" },
         "FRAME UPWS": { op: "2 orang", time: "15 jam" },
         "RENALPRO R-104": { op: "2 orang", time: "40 jam" },
@@ -671,9 +714,42 @@
     }
 
     // ==========================================
+    // HELPER FUNCTION: FUNGSI TOGGLE UNTUK OPSI OTHER
+    // ==========================================
+    function toggleManualOption(selectElement, rowId, inputId) {
+        const row = document.getElementById(rowId);
+        const input = document.getElementById(inputId);
+        if (selectElement.value === 'Other') {
+            row.classList.remove('hidden');
+            input.setAttribute('required', 'true');
+        } else {
+            row.classList.add('hidden');
+            input.removeAttribute('required');
+            input.value = ''; // Kosongkan field
+        }
+    }
+
+    // ==========================================
+    // HELPER FUNCTION: KONVERSI BASE64 UNTUK GAMBAR
+    // ==========================================
+    function getBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+                let encoded = reader.result.toString().replace(/^data:(.*,)?/, '');
+                if ((encoded.length % 4) > 0) {
+                    encoded += '='.repeat(4 - (encoded.length % 4));
+                }
+                resolve({ name: file.name, mimeType: file.type, base64: encoded });
+            };
+            reader.onerror = error => reject(error);
+        });
+    }
+
+    // ==========================================
     // SINKRONISASI DATA DARI CLOUD KE LOKAL (REALTIME)
     // ==========================================
-    
     db.ref('authData').on('value', (snapshot) => {
         let data = snapshot.val();
         if (!data) {
@@ -701,13 +777,13 @@
         const data = snapshot.val() || {};
         for (let key in operatorDashboardStats) delete operatorDashboardStats[key];
         Object.assign(operatorDashboardStats, data);
-        renderDashboard();
     });
 
     db.ref('history').on('value', (snapshot) => {
         const data = snapshot.val() || {};
-        globalHistoryData = data; // Simpan untuk modal edit
+        globalHistoryData = data; 
         renderHistoryTable(data);
+        renderKPIDashboard(data);
     });
 
     // ==========================================
@@ -720,23 +796,33 @@
             document.getElementById('main-app').classList.remove('d-none');
             const userObj = JSON.parse(loggedInUser);
             document.getElementById('header_operator_name').innerHTML = `[OPR: <strong>${userObj.name}</strong>]`;
-            // Refresh table render jika status login berubah
-            db.ref('history').once('value').then((snapshot) => renderHistoryTable(snapshot.val() || {}));
+            
+            // Tampilkan KPI Dashboard jika rolenya Developer
+            if(userObj.role === 'Developer') {
+                document.getElementById('kpiDashboardContainer').classList.remove('hidden');
+            } else {
+                document.getElementById('kpiDashboardContainer').classList.add('hidden');
+            }
+
+            db.ref('history').once('value').then((snapshot) => {
+                let d = snapshot.val() || {};
+                renderHistoryTable(d);
+                renderKPIDashboard(d);
+            });
+            
+            renderPendingJobs(); // Re-render for appropriate buttons based on Role
         } else {
             document.getElementById('login-section').classList.remove('d-none');
             document.getElementById('main-app').classList.add('d-none');
         }
     }
 
-    // UPDATE: Login hanya dengan password
     function handleLogin(event) {
         event.preventDefault();
         const pass = document.getElementById('login_password').value;
         const dbAuth = JSON.parse(localStorage.getItem('authDataPTTT')) || defaultAuthData;
 
         let foundUser = null;
-        
-        // Cek siapa pemilik password ini
         for (let user in dbAuth) {
             if (String(dbAuth[user].pass) === String(pass)) {
                 foundUser = { name: user, role: dbAuth[user].role };
@@ -746,7 +832,7 @@
 
         if (foundUser) {
             localStorage.setItem('loggedInUserPTTT', JSON.stringify(foundUser));
-            document.getElementById('login_password').value = ""; // Bersihkan form
+            document.getElementById('login_password').value = "";
             checkLoginStatus();
         } else {
             alert("❌ Akses Ditolak: Kata sandi yang Anda masukkan tidak terdaftar.");
@@ -762,88 +848,36 @@
         }
     }
 
-    function openPasswordModal() {
-        document.getElementById('passwordModal').style.display = "block";
-        document.getElementById('old_password').value = "";
-        document.getElementById('new_password').value = "";
-        document.getElementById('confirm_password').value = "";
-    }
-
-    function closePasswordModal() {
-        document.getElementById('passwordModal').style.display = "none";
-    }
+    function openPasswordModal() { document.getElementById('passwordModal').style.display = "block"; }
+    function closePasswordModal() { document.getElementById('passwordModal').style.display = "none"; }
 
     function updatePassword(event) {
         event.preventDefault();
-        
         const btnUpdate = document.getElementById('btn-update-password');
         btnUpdate.innerText = "MENYIMPAN...";
         btnUpdate.disabled = true;
 
-        const resetBtn = () => {
-            btnUpdate.innerText = "SIMPAN SANDI BARU";
-            btnUpdate.disabled = false;
-        };
-
+        const resetBtn = () => { btnUpdate.innerText = "SIMPAN SANDI BARU"; btnUpdate.disabled = false; };
         try {
-            const loggedInUserStr = localStorage.getItem('loggedInUserPTTT');
-            
-            if (!loggedInUserStr) {
-                alert("Sesi login tidak valid atau kadaluarsa. Silakan login ulang.");
-                window.location.reload();
-                return;
-            }
-            
-            const loggedInUser = JSON.parse(loggedInUserStr);
+            const loggedInUser = JSON.parse(localStorage.getItem('loggedInUserPTTT'));
             const dbAuth = JSON.parse(localStorage.getItem('authDataPTTT'));
             const oldPass = document.getElementById('old_password').value;
             const newPass = document.getElementById('new_password').value;
             const confirmPass = document.getElementById('confirm_password').value;
 
-            if (!dbAuth || !dbAuth[loggedInUser.name]) {
-                alert("Sistem sedang sinkronisasi data dengan server. Coba beberapa saat lagi.");
-                resetBtn();
-                return;
-            }
-
-            if (String(dbAuth[loggedInUser.name].pass) !== String(oldPass)) {
-                alert("Sandi lama yang Anda masukkan tidak valid.");
-                resetBtn();
-                return;
-            }
-
-            if (newPass !== confirmPass) {
-                alert("Konfirmasi sandi baru tidak sinkron.");
-                resetBtn();
-                return;
-            }
-
-            const timeoutAlert = setTimeout(() => {
-                alert("Waktu habis! Gagal terhubung ke database. Pastikan koneksi stabil dan akses 'Rules' Firebase diizinkan.");
-                resetBtn();
-            }, 10000);
+            if (String(dbAuth[loggedInUser.name].pass) !== String(oldPass)) { alert("Sandi lama salah."); resetBtn(); return; }
+            if (newPass !== confirmPass) { alert("Konfirmasi sandi tidak sinkron."); resetBtn(); return; }
 
             db.ref(`authData/${loggedInUser.name}/pass`).set(newPass)
                 .then(() => {
-                    clearTimeout(timeoutAlert); 
                     dbAuth[loggedInUser.name].pass = newPass;
                     localStorage.setItem('authDataPTTT', JSON.stringify(dbAuth));
-                    
-                    alert("✅ Sandi berhasil diperbarui secara realtime di cloud!");
+                    alert("✅ Sandi berhasil diperbarui!");
                     closePasswordModal();
                 })
-                .catch((error) => {
-                    clearTimeout(timeoutAlert);
-                    alert("❌ Terjadi kesalahan ke server: " + error.message);
-                })
-                .finally(() => {
-                    resetBtn();
-                });
-
-        } catch (error) {
-            alert("Terjadi kesalahan sistem internal: " + error.message);
-            resetBtn();
-        }
+                .catch((error) => alert("❌ Error: " + error.message))
+                .finally(() => resetBtn());
+        } catch (error) { alert("Error sistem: " + error.message); resetBtn(); }
     }
 
     checkLoginStatus();
@@ -871,18 +905,13 @@
             if (selected === "Other") {
                 manualRow.classList.remove("hidden");
                 manualInput.setAttribute("required", "true");
-                opField.removeAttribute("readonly");
-                timeField.removeAttribute("readonly");
+                opField.removeAttribute("readonly"); timeField.removeAttribute("readonly");
                 opField.value = ""; timeField.value = "";
-                opField.placeholder = "Input Manual (ex: 2 orang)";
-                timeField.placeholder = "Input Manual (ex: 24 jam)";
             } else {
                 manualRow.classList.add("hidden");
                 manualInput.removeAttribute("required");
-                opField.setAttribute("readonly", "true");
-                timeField.setAttribute("readonly", "true");
-                opField.value = productData[selected].op;
-                timeField.value = productData[selected].time;
+                opField.setAttribute("readonly", "true"); timeField.setAttribute("readonly", "true");
+                opField.value = productData[selected].op; timeField.value = productData[selected].time;
             }
         }
     }
@@ -901,38 +930,23 @@
             extraOptions.forEach(eo => {
                 const option = document.createElement('option');
                 option.value = eo.value; option.text = eo.text; option.classList.add('opt-16');
-                select.appendChild(option);
+                // Insert extra options before the "Other" option if it exists
+                const otherOpt = select.querySelector('.opt-other');
+                if (otherOpt) select.insertBefore(option, otherOpt);
+                else select.appendChild(option);
             });
             if (extraOptions.some(eo => eo.value === currentValue)) select.value = currentValue;
         } else {
             if (extraOptions.some(eo => eo.value === currentValue)) select.value = "Idle Time"; 
         }
+        
+        // Panggil toggleManualOption agar kolom manual tertutup jika status direset
+        toggleManualOption(select, 'row_manual_kondisi', 'manual_kondisi');
     }
 
-    function renderPendingJobs() {
-        const tbody = document.getElementById("pendingTable").querySelector("tbody");
-        const container = document.getElementById("pendingContainer");
-        tbody.innerHTML = "";
-        let hasPending = false;
-
-        for (let spp in pendingJobs) {
-            const job = pendingJobs[spp];
-            hasPending = true;
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td><strong style="color:var(--neon-cyan)">${spp}</strong></td>
-                <td>${job.namaProduk}</td>
-                <td>${job.operator}</td>
-                <td><span class="status-badge status-danger">${job.status}</span></td>
-                <td><button type="button" class="btn-resume" onclick="resumeJob('${spp}')">LANJUTKAN</button></td>
-            `;
-            tbody.appendChild(tr);
-        }
-        if (hasPending) container.classList.remove("hidden");
-        else container.classList.add("hidden");
-    }
-
-    // UPDATE: Render History Tabel
+    // ==========================================
+    // RENDERING & PENGHAPUSAN HISTORI
+    // ==========================================
     function renderHistoryTable(data) {
         const tbody = document.getElementById("historyTable").querySelector("tbody");
         tbody.innerHTML = "";
@@ -946,17 +960,16 @@
         items.sort((a, b) => b.formNo.localeCompare(a.formNo));
 
         const loggedInUserStr = localStorage.getItem('loggedInUserPTTT');
-        let userRole = "";
-        if (loggedInUserStr) {
-            userRole = JSON.parse(loggedInUserStr).role;
-        }
+        let userRole = loggedInUserStr ? JSON.parse(loggedInUserStr).role : "";
 
         items.forEach(item => {
             let statusHtml = `<strong style="color:var(--warning);">${item.kondisi}</strong>`;
             
-            // Tampilkan tombol EDIT DEVELOPER yang memicu modal
+            // Tombol Khusus Developer: Edit & Delete
             if (userRole === 'Developer') {
-                statusHtml += `<br><button class="btn-edit" onclick="openEditHistoryModal('${item.firebaseKey}')">EDIT SEMUA</button>`;
+                statusHtml += `<br>
+                <button class="btn-edit" onclick="openEditHistoryModal('${item.firebaseKey}')">EDIT</button>
+                <button class="btn-delete" onclick="deleteHistoryItem('${item.firebaseKey}')">HAPUS</button>`;
             }
 
             const tr = document.createElement("tr");
@@ -977,65 +990,189 @@
         });
     }
 
+    function deleteHistoryItem(key) {
+        if(confirm("PERINGATAN: Apakah Anda yakin ingin menghapus log histori ini secara permanen dari database?")) {
+            db.ref(`history/${key}`).remove()
+                .then(() => alert("Data berhasil dihapus dari cloud."))
+                .catch((error) => alert("Gagal menghapus data: " + error.message));
+        }
+    }
+
     // ==========================================
-    // FUNGSI EDIT HISTORI (KHUSUS DEVELOPER)
+    // DASHBOARD KPI (AUTO-DETECT JUMLAH PEKERJA BERDASARKAN ANTREAN TUGAS)
     // ==========================================
-    function openEditHistoryModal(key) {
+    function renderKPIDashboard(data) {
+        const tbody = document.getElementById("kpiTable").querySelector("tbody");
+        tbody.innerHTML = "";
+
+        // Tahap 1: Lacak otomatis ada berapa orang unik yang ikut mengerjakan sebuah SPP
+        let sppWorkers = {}; 
+        for(let key in data) {
+            let item = data[key];
+            if(item.noSpp) {
+                if(!sppWorkers[item.noSpp]) sppWorkers[item.noSpp] = new Set();
+                sppWorkers[item.noSpp].add(item.operator); // Set otomatis mengabaikan nama ganda
+            }
+        }
+
+        // Tahap 2: Kalkulasi Skor KPI
+        let operatorStats = {};
+        for(let key in data) {
+            let item = data[key];
+            if(!item.kondisi) continue;
+            
+            let isCompleted = item.kondisi.includes("Selesai") || item.kondisi.includes("Lembur");
+
+            if(!operatorStats[item.operator]) {
+                operatorStats[item.operator] = { totalDone: 0, onTime: 0, early: 0, overtime: 0, totalScore: 0 };
+            }
+
+            if(isCompleted) {
+                operatorStats[item.operator].totalDone++;
+                
+                let baseScore = 0;
+
+                // A. Poin Ketepatan Waktu
+                if(item.kondisi === "Selesai Tepat Waktu") {
+                    operatorStats[item.operator].onTime++;
+                    baseScore = 100;
+                } else if(item.kondisi === "Selesai Awal") {
+                    operatorStats[item.operator].early++;
+                    baseScore = 110; 
+                } else if(item.kondisi.includes("Lembur")) {
+                    operatorStats[item.operator].overtime++;
+                    baseScore = 80; // Pinalti karena tidak tepat waktu (lembur)
+                } else {
+                    baseScore = 90; 
+                }
+
+                // B. Poin Manpower (Auto-Detect dari Set pekerja unik di SPP yang sama)
+                let actMP = sppWorkers[item.noSpp].size; 
+                let stdMP = item.stdManpower || 1; // Standar manpower tersimpan di log
+                let penaltyManpower = 0;
+
+                if (actMP > stdMP) {
+                    // Pengurangan poin jika pekerja yang terlibat melebihi standar
+                    penaltyManpower = (actMP - stdMP) * 15;
+                } else if (actMP < stdMP && actMP > 0) {
+                    // Bonus poin jika yang ngerjain lebih sedikit dari standar
+                    penaltyManpower = -10; 
+                }
+
+                let finalTaskScore = baseScore - penaltyManpower;
+                operatorStats[item.operator].totalScore += finalTaskScore;
+            }
+        }
+
+        let hasData = false;
+        for (let op in operatorStats) {
+            let stats = operatorStats[op];
+            if(stats.totalDone === 0) continue;
+            hasData = true;
+
+            let finalScore = stats.totalScore / stats.totalDone;
+            // Cap skor di angka 100 secara visual jika melebihi 100
+            if(finalScore > 100) finalScore = 100; 
+
+            let badgeClass = finalScore >= 90 ? "status-good" : (finalScore >= 75 ? "status-kpi" : "status-danger");
+
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><strong>${op}</strong></td>
+                <td>${stats.totalDone} SPP</td>
+                <td style="color:var(--success)">${stats.early}x</td>
+                <td style="color:var(--neon-cyan)">${stats.onTime}x</td>
+                <td style="color:var(--danger)">${stats.overtime}x</td>
+                <td><span class="status-badge ${badgeClass}">${finalScore.toFixed(1)} / 100</span></td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        if(!hasData) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Belum ada data penyelesaian (Selesai/Lembur) untuk dinilai.</td></tr>`;
+        }
+    }
+
+    // ==========================================
+    // PENDING JOBS & LAINNYA
+    // ==========================================
+    function renderPendingJobs() {
+        const tbody = document.getElementById("pendingTable").querySelector("tbody");
+        const container = document.getElementById("pendingContainer");
+        tbody.innerHTML = "";
+        let hasPending = false;
+
         const loggedInUserStr = localStorage.getItem('loggedInUserPTTT');
-        if (!loggedInUserStr || JSON.parse(loggedInUserStr).role !== 'Developer') {
-            alert("Akses Ditolak: Hanya Developer yang memiliki izin ini.");
-            return;
-        }
+        let userRole = loggedInUserStr ? JSON.parse(loggedInUserStr).role : "";
 
+        for (let spp in pendingJobs) {
+            const job = pendingJobs[spp];
+            hasPending = true;
+            
+            let actionHtml = `<button type="button" class="btn-resume" onclick="resumeJob('${spp}')">LANJUTKAN</button>`;
+            if (userRole === 'Developer') {
+                actionHtml += `<button type="button" class="btn-delete" onclick="deletePendingJob('${spp}')" style="margin-left:5px;">HAPUS</button>`;
+            }
+
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><strong style="color:var(--neon-cyan)">${spp}</strong></td>
+                <td>${job.namaProduk}</td>
+                <td>${job.operator}</td>
+                <td><span class="status-badge status-danger">${job.status}</span></td>
+                <td>${actionHtml}</td>
+            `;
+            tbody.appendChild(tr);
+        }
+        if (hasPending) container.classList.remove("hidden");
+        else container.classList.add("hidden");
+    }
+
+    // Fungsi Menghapus Pending Job (Dev Only)
+    function deletePendingJob(spp) {
+        if(confirm(`Peringatan (Khusus Developer): Anda yakin ingin menghapus SPP "${spp}" dari antrean tertunda secara permanen?`)) {
+            db.ref(`pendingJobs/${spp}`).remove()
+                .then(() => alert("✅ Antrean berhasil dihapus dari cloud!"))
+                .catch((err) => alert("❌ Gagal menghapus: " + err.message));
+        }
+    }
+
+    function openEditHistoryModal(key) {
         const item = globalHistoryData[key];
-        if(!item) {
-            alert("Gagal memuat data. Coba refresh halaman.");
-            return;
-        }
-
-        // Isi form modal dengan data saat ini
         document.getElementById('edit_key').value = key;
         document.getElementById('edit_spp').value = item.noSpp || "";
         document.getElementById('edit_produk').value = item.namaProduk || "";
-        document.getElementById('edit_kategori').value = item.kategori || "Reguler";
         
-        // Pengecekan opsi jika tidak ada di dropdown
-        const statusSelect = document.getElementById('edit_status');
-        let hasOption = false;
-        for (let i = 0; i < statusSelect.options.length; i++) {
-            if (statusSelect.options[i].value === item.kondisi) {
-                statusSelect.selectedIndex = i;
-                hasOption = true;
-                break;
-            }
+        const kategoriSelect = document.getElementById('edit_kategori');
+        let hasKatOpt = false;
+        for (let i = 0; i < kategoriSelect.options.length; i++) {
+            if (kategoriSelect.options[i].value === item.kategori) { kategoriSelect.selectedIndex = i; hasKatOpt = true; break; }
         }
-        if (!hasOption) {
-            let newOpt = document.createElement("option");
-            newOpt.value = item.kondisi;
-            newOpt.text = item.kondisi;
-            statusSelect.appendChild(newOpt);
-            statusSelect.value = item.kondisi;
+        if (!hasKatOpt) {
+            let newOpt = document.createElement("option"); newOpt.value = item.kategori; newOpt.text = item.kategori;
+            kategoriSelect.appendChild(newOpt); kategoriSelect.value = item.kategori;
+        }
+
+        const statusSelect = document.getElementById('edit_status');
+        let hasStatOpt = false;
+        for (let i = 0; i < statusSelect.options.length; i++) {
+            if (statusSelect.options[i].value === item.kondisi) { statusSelect.selectedIndex = i; hasStatOpt = true; break; }
+        }
+        if (!hasStatOpt) {
+            let newOpt = document.createElement("option"); newOpt.value = item.kondisi; newOpt.text = item.kondisi;
+            statusSelect.appendChild(newOpt); statusSelect.value = item.kondisi;
         }
 
         document.getElementById('edit_stdwaktu').value = item.stdWaktu || "";
         document.getElementById('edit_alasan').value = item.alasan || "";
         document.getElementById('edit_uraian').value = item.uraian || "";
-
-        // Tampilkan Modal
         document.getElementById('editHistoryModal').style.display = "block";
     }
 
-    function closeEditHistoryModal() {
-        document.getElementById('editHistoryModal').style.display = "none";
-    }
+    function closeEditHistoryModal() { document.getElementById('editHistoryModal').style.display = "none"; }
 
     function submitEditHistory(event) {
         event.preventDefault();
-        
-        const btnSave = document.getElementById('btn-save-edit');
-        btnSave.innerText = "MENGUBAH DATABASE...";
-        btnSave.disabled = true;
-
         const key = document.getElementById('edit_key').value;
         const newData = {
             noSpp: document.getElementById('edit_spp').value,
@@ -1046,46 +1183,25 @@
             alasan: document.getElementById('edit_alasan').value,
             uraian: document.getElementById('edit_uraian').value
         };
-
-        // Eksekusi update langsung ke Firebase pada parameter spesifik
         db.ref(`history/${key}`).update(newData)
-            .then(() => {
-                alert("✅ Data berhasil diubah secara permanen di server!");
-                closeEditHistoryModal();
-            })
-            .catch((error) => {
-                alert("❌ Gagal merubah database: " + error.message);
-            })
-            .finally(() => {
-                btnSave.innerText = "UBAH DATABASE";
-                btnSave.disabled = false;
-            });
+            .then(() => { alert("✅ Data berhasil diubah!"); closeEditHistoryModal(); })
+            .catch((error) => alert("❌ Gagal merubah database: " + error.message));
     }
-
 
     function resumeJob(spp) {
         const job = pendingJobs[spp];
         if(!job) return;
-        const loggedInUser = JSON.parse(localStorage.getItem('loggedInUserPTTT'));
-        if(loggedInUser.name !== job.operator && loggedInUser.role !== 'Developer') {
-            alert(`Akses Ditolak: Tugas ini terikat pada operator ${job.operator}.`);
-            return;
-        }
-
         document.getElementById("no_spp").value = spp;
         const produkSelect = document.getElementById("nama_produk");
         let isOther = true;
-        
         for (let i = 0; i < produkSelect.options.length; i++) {
-            if (produkSelect.options[i].value === job.namaProduk) {
-                produkSelect.selectedIndex = i; isOther = false; break;
-            }
+            if (produkSelect.options[i].value === job.namaProduk) { produkSelect.selectedIndex = i; isOther = false; break; }
         }
-        if (isOther) {
-            produkSelect.value = "Other";
-            document.getElementById("manual_nama_produk").value = job.namaProduk;
+        if (isOther) { 
+            produkSelect.value = "Other"; 
+            document.getElementById("manual_nama_produk").value = job.namaProduk; 
+            document.getElementById("row_manual_produk").classList.remove('hidden');
         }
-
         updateProductData();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -1103,25 +1219,33 @@
         return totalMinutes / 60;
     }
 
-    // UPDATE: Penambahan Kategori Pekerjaan ke penyimpanan Histori
-    function saveToHistory(event) {
+    async function saveToHistory(event) {
         event.preventDefault();
-        
         const submitBtn = document.getElementById('btn-submit-form');
-        submitBtn.innerText = "MENGIRIM KE CLOUD...";
-        submitBtn.disabled = true;
+        submitBtn.innerText = "MENGUNGGAH FOTO & MENYIMPAN..."; submitBtn.disabled = true;
 
         const operator = JSON.parse(localStorage.getItem('loggedInUserPTTT')).name;
         const waktuUpdate = document.getElementById("waktu_update").value;
         const noSpp = document.getElementById("no_spp").value;
-        const kondisi = document.getElementById("kondisi_kerja").value;
-        const kategori = document.getElementById("kategori_pekerjaan").value;
         const stdWaktu = document.getElementById("std_waktu").value;
-        const tahapProduksi = document.getElementById("tahap_produksi").value;
         const uraian = document.getElementById("uraian_pekerjaan").value;
         
+        // Pengecekan Dropdown dengan opsi "Other"
         let namaProduk = document.getElementById("nama_produk").value;
         if(namaProduk === "Other") namaProduk = document.getElementById("manual_nama_produk").value;
+        
+        let kategori = document.getElementById("kategori_pekerjaan").value;
+        if(kategori === "Other") kategori = document.getElementById("manual_kategori").value;
+        
+        let kondisi = document.getElementById("kondisi_kerja").value;
+        if(kondisi === "Other") kondisi = document.getElementById("manual_kondisi").value;
+        
+        let tahapProduksi = document.getElementById("tahap_produksi").value;
+        if(tahapProduksi === "Other") tahapProduksi = document.getElementById("manual_tahap").value;
+
+        // Ambil Data Manpower Standar untuk dikirim ke DB agar mudah dikalkulasi KPI
+        const stdOpString = document.getElementById("std_operator").value || "";
+        const stdManpower = parseInt(stdOpString) || 1; // Misal string "2 orang" di ekstrak jadi integer 2
 
         const statusButuhAlasan = ["Idle Time", "Stoppage", "Takeover", "Lanjutkan Besok", "Lembur (Reguler) - 4 Jam", "Lembur (Sabtu/Minggu) - 9 Jam"];
         let alasanKondisi = "-";
@@ -1130,152 +1254,118 @@
             alasanKondisi = prompt(`Input justifikasi status pekerjaan "${kondisi}":`);
             if (alasanKondisi === null || alasanKondisi.trim() === "") {
                 alert("Proses digagalkan: Justifikasi wajib diisi.");
-                submitBtn.innerText = "SUBMIT DATA PRODUKSI";
-                submitBtn.disabled = false;
-                return;
+                submitBtn.innerText = "SUBMIT DATA PRODUKSI"; submitBtn.disabled = false; return;
             }
         }
 
         const fileInput = document.getElementById('foto_aktual');
         let fotoName = "TIDAK ADA";
-        if (fileInput.files.length > 0) fotoName = fileInput.files[0].name;
+
+        if (fileInput.files.length > 0) {
+            try {
+                const filesBase64 = [];
+                for(let i=0; i < fileInput.files.length; i++) filesBase64.push(await getBase64(fileInput.files[i]));
+                const scriptUrl = "https://script.google.com/macros/s/AKfycbxFe4vFwYNtVJ7pOIM8XiCaYfsdyMBthuPGhZpjTVF52K2ESGi2741RraFoq4TRmtyQ0g/exec"; 
+                const response = await fetch(scriptUrl, { method: "POST", body: JSON.stringify({ files: filesBase64 }), headers: { "Content-Type": "text/plain;charset=utf-8" }});
+                const result = await response.json();
+                if(result.status === "success") fotoName = result.files.map(f => `<a href="${f.url}" target="_blank" style="color:var(--neon-cyan); text-decoration:underline; display:block;">${f.name}</a>`).join('');
+                else throw new Error(result.message);
+            } catch(e) {
+                alert("Gagal mengunggah foto ke Google Drive: " + e.message);
+                submitBtn.innerText = "SUBMIT DATA PRODUKSI"; submitBtn.disabled = false; return;
+            }
+        }
 
         let targetHours = parseInt(stdWaktu) || 0;
         if (!spkTracking[noSpp]) {
-            let defaultStart = new Date(waktuUpdate);
-            defaultStart.setHours(8, 0, 0, 0);
+            let defaultStart = new Date(waktuUpdate); defaultStart.setHours(8, 0, 0, 0);
             spkTracking[noSpp] = { target: targetHours, accumulatedUsed: 0, isFrozen: false, lastStart: defaultStart.toISOString() };
         }
 
-        let tracker = spkTracking[noSpp];
-        let alertMessage = "";
-        let diffHours = 0;
+        let tracker = spkTracking[noSpp]; let alertMessage = ""; let diffHours = 0;
 
         if (tracker.isFrozen) {
             alertMessage += `[SYS.LOG] Mengaktifkan ulang kalkulasi waktu dari status FREEZE.\n\n`;
-            tracker.isFrozen = false;
-            tracker.lastStart = new Date(waktuUpdate).toISOString();
+            tracker.isFrozen = false; tracker.lastStart = new Date(waktuUpdate).toISOString();
         } else {
             diffHours = calculateEffectiveHours(tracker.lastStart, waktuUpdate);
             tracker.accumulatedUsed += diffHours;
-            
-            if (!operatorDashboardStats[operator]) {
-                operatorDashboardStats[operator] = { totalHours: 0, productsCompleted: 0, lateHours: 0 };
-            }
-            operatorDashboardStats[operator].totalHours += diffHours;
-            let sisaJam = tracker.target - tracker.accumulatedUsed;
-
-            if (statusButuhAlasan.includes(kondisi) && kondisi !== "Lembur (Reguler) - 4 Jam" && kondisi !== "Lembur (Sabtu/Minggu) - 9 Jam") {
+            if (statusButuhAlasan.includes(kondisi) && !kondisi.includes("Lembur")) {
                 tracker.isFrozen = true;
-                alertMessage += `[STATUS] ${kondisi}\nSistem menghentikan perhitungan waktu sementara (FREEZE).\n\n`;
-            }
-
-            if (sisaJam >= 0) {
-                alertMessage += `[AKUMULASI WAKTU] Tercatat: ${diffHours.toFixed(1)} jam.\nTotal waktu SPP: ${tracker.accumulatedUsed.toFixed(1)} jam.\nSisa margin waktu: ${sisaJam.toFixed(1)} jam.`;
-            } else {
-                alertMessage += `[PERINGATAN SISTEM] Batas standar terlampaui!\nOverdue: ${Math.abs(sisaJam).toFixed(1)} jam.`;
+                alertMessage += `[STATUS] ${kondisi}\nSistem menghentikan perhitungan waktu (FREEZE).\n\n`;
             }
         }
 
-        if (kondisi === "Selesai Awal" || kondisi === "Selesai Tepat Waktu") {
-            operatorDashboardStats[operator].productsCompleted = (operatorDashboardStats[operator].productsCompleted || 0) + 1;
-            let late = tracker.accumulatedUsed - tracker.target;
-            if (late > 0) operatorDashboardStats[operator].lateHours = (operatorDashboardStats[operator].lateHours || 0) + late;
-        }
-
-        const dateObj = new Date(waktuUpdate);
-        const formattedDate = dateObj.toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).toUpperCase();
         const currentFormNo = getNextFormNumber();
-
-        const promises = [];
-        const historyRef = db.ref('history').push();
+        const formattedDate = new Date(waktuUpdate).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).toUpperCase();
         
-        // Simpan data beserta kategori
-        promises.push(historyRef.set({
-            formNo: currentFormNo, waktu: formattedDate, operator: operator, noSpp: noSpp,
-            namaProduk: namaProduk, kategori: kategori, stdWaktu: stdWaktu, kondisi: kondisi, 
-            alasan: alasanKondisi, uraian: uraian, foto: fotoName
-        }));
+        // Push data komprehensif ke History DB (Hanya mencatat stdManpower)
+        const promises = [db.ref('history').push().set({ 
+            formNo: currentFormNo, 
+            waktu: formattedDate, 
+            operator: operator, 
+            noSpp: noSpp, 
+            namaProduk: namaProduk, 
+            kategori: kategori, 
+            stdWaktu: stdWaktu, 
+            kondisi: kondisi, 
+            alasan: alasanKondisi, 
+            uraian: uraian, 
+            foto: fotoName,
+            stdManpower: stdManpower 
+        })];
 
-        if (kondisi === "Selesai Awal" || kondisi === "Selesai Tepat Waktu") {
-            promises.push(db.ref(`pendingJobs/${noSpp}`).remove());
-        } else {
-            promises.push(db.ref(`pendingJobs/${noSpp}`).set({ namaProduk: namaProduk, operator: operator, status: kondisi, tahap: tahapProduksi }));
-        }
-
-        promises.push(db.ref(`operatorDashboardStats/${operator}`).set(operatorDashboardStats[operator]));
+        if (kondisi.includes("Selesai")) promises.push(db.ref(`pendingJobs/${noSpp}`).remove());
+        else promises.push(db.ref(`pendingJobs/${noSpp}`).set({ namaProduk: namaProduk, operator: operator, status: kondisi, tahap: tahapProduksi }));
 
         let counter = parseInt(localStorage.getItem('formCounterTT')) || 1;
         promises.push(db.ref('config/formCounter').set(counter + 1));
 
         Promise.all(promises)
             .then(() => {
-                alert(alertMessage + "\n\n✅ Transmisi Data Sukses! Data telah tersimpan secara realtime di cloud.");
-                
-                // Reset inputs
-                document.getElementById("no_spp").value = "";
+                alert(alertMessage + "\n\n✅ Transmisi Data Sukses! Data & Foto telah tersimpan di cloud.");
+                // Reset form inputs
+                document.getElementById("no_spp").value = ""; 
                 document.getElementById("no_produksi").value = "";
-                document.getElementById("uraian_pekerjaan").value = "";
+                document.getElementById("uraian_pekerjaan").value = ""; 
                 document.getElementById("foto_aktual").value = "";
-                document.getElementById("tahap_produksi").selectedIndex = 0;
+                
+                // Hide manual input rows
+                document.getElementById("row_manual_produk").classList.add('hidden');
+                document.getElementById("row_manual_kategori").classList.add('hidden');
+                document.getElementById("row_manual_kondisi").classList.add('hidden');
+                document.getElementById("row_manual_tahap").classList.add('hidden');
             })
-            .catch((error) => {
-                alert("❌ Transmisi Gagal: " + error.message + "\nPastikan aturan database disetel menjadi publik (.read: true, .write: true)");
-            })
-            .finally(() => {
-                submitBtn.innerText = "SUBMIT DATA PRODUKSI";
-                submitBtn.disabled = false;
-            });
+            .catch((error) => alert("❌ Transmisi Gagal: " + error.message))
+            .finally(() => { submitBtn.innerText = "SUBMIT DATA PRODUKSI"; submitBtn.disabled = false; });
     }
 
     function searchTable() {
         const filter = document.getElementById("searchInput").value.toLowerCase();
         const tr = document.getElementById("historyTable").getElementsByTagName("tr");
         for (let i = 1; i < tr.length; i++) { 
-            let match = false;
-            let td = tr[i].getElementsByTagName("td");
-            for (let j = 0; j < td.length; j++) {
-                if (td[j] && td[j].innerHTML.toLowerCase().indexOf(filter) > -1) { match = true; break; }
-            }
+            let match = false; let td = tr[i].getElementsByTagName("td");
+            for (let j = 0; j < td.length; j++) if (td[j] && td[j].innerHTML.toLowerCase().indexOf(filter) > -1) { match = true; break; }
             tr[i].style.display = match ? "" : "none";
         }
     }
 
     function exportToExcel() {
         const html = document.getElementById("historyTable").outerHTML.replace(/ /g, '%20');
-        const downloadLink = document.createElement("a");
-        document.body.appendChild(downloadLink);
-        downloadLink.href = 'data:application/vnd.ms-excel;charset=utf-8,\ufeff' + html;
-        downloadLink.download = "DB_Histori_Produksi.xls";
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
+        const downloadLink = document.createElement("a"); downloadLink.href = 'data:application/vnd.ms-excel;charset=utf-8,\ufeff' + html; downloadLink.download = "DB_Histori_Produksi.xls";
+        document.body.appendChild(downloadLink); downloadLink.click(); document.body.removeChild(downloadLink);
     }
 
-    // WAKTU UPDATE OTOMATIS
     function updateLiveClock() {
         const now = new Date();
-        const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
-        document.getElementById('live_clock').innerHTML = "SYS.TIME: " + now.toLocaleDateString('en-GB', options).toUpperCase();
-
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
+        document.getElementById('live_clock').innerHTML = "SYS.TIME: " + now.toLocaleDateString('en-GB', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).toUpperCase();
         
-        const formattedRealTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+        const formattedRealTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}T${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
         const inputWaktu = document.getElementById('waktu_update');
-
-        if (inputWaktu && inputWaktu.value !== formattedRealTime) {
-            inputWaktu.value = formattedRealTime;
-            checkTimeLogic();
-        }
+        if (inputWaktu && inputWaktu.value !== formattedRealTime) { inputWaktu.value = formattedRealTime; checkTimeLogic(); }
     }
     
-    // Set timer berjalan setiap detik (1000ms)
-    setInterval(updateLiveClock, 1000);
-    updateLiveClock();
-
+    setInterval(updateLiveClock, 1000); updateLiveClock();
 </script>
 </body>
 </html>
