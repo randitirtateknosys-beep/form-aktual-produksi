@@ -13,25 +13,18 @@
     
     <style>
         :root {
-            /* Warna Latar Belakang dan Panel Baru (Terang) - Jauh lebih mudah diakses */
-            --bg-dark: #F1F5F9; /* Abu-abu sangat muda yang bersih */
-            --glass-bg: #FFFFFF; /* Putih bersih untuk panel */
-            --glass-border: #E2E8F0; /* Abu-abu muda untuk batas panel */
-            
-            /* Aksen Neon (disesuaikan agar lebih gelap dan kontras di background putih) */
+            --bg-dark: #F1F5F9; 
+            --glass-bg: #FFFFFF; 
+            --glass-border: #E2E8F0; 
             --neon-cyan: #0088CC; 
             --neon-blue: #005580; 
             --danger: #DC2626; 
             --warning: #F59E0B; 
             --success: #16A34A; 
             --gold: #CA8A04; 
-
-            /* Warna Teks Baru (Gelap) */
-            --text-main: #1A202C; /* Biru tua/hitam pekat untuk teks utama */
-            --text-muted: #64748B; /* Abu-abu tua untuk teks diredam */
-            
-            /* Latar Belakang Input Baru (Terang) */
-            --input-bg: #FFFFFF; /* Putih bersih untuk input */
+            --text-main: #1A202C; 
+            --text-muted: #64748B; 
+            --input-bg: #FFFFFF; 
         }
 
         *, *::before, *::after { box-sizing: border-box; }
@@ -48,7 +41,6 @@
         
         .d-none, .hidden { display: none !important; }
         
-        /* Glassmorphism Card Style (Light theme) */
         .glass-panel {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
@@ -56,13 +48,11 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         }
         
-        /* Highlight border for Developer Dashboard */
         .kpi-panel {
             border: 1px solid var(--gold);
             box-shadow: 0 0 10px rgba(202, 138, 4, 0.1);
         }
 
-        /* Halaman Login */
         .login-wrapper {
             max-width: 400px;
             margin: 10vh auto;
@@ -84,14 +74,8 @@
             line-height: 1.4;
         }
         
-        /* Form Utama */
-        .form-wrapper {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 30px;
-        }
+        .form-wrapper { max-width: 1000px; margin: 0 auto; padding: 30px; }
         
-        /* HUD Header (Live Clock & Controls) */
         .live-clock-container {
             background: rgba(0, 136, 204, 0.05);
             border: 1px solid var(--glass-border);
@@ -107,24 +91,11 @@
             box-shadow: inset 0 0 10px rgba(0, 136, 204, 0.05);
         }
 
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .header-controls { display: flex; align-items: center; gap: 10px; }
 
-        /* Buttons */
-        button {
-            font-family: 'Rajdhani', sans-serif;
-            letter-spacing: 0.5px;
-            transition: all 0.3s ease;
-        }
+        button { font-family: 'Rajdhani', sans-serif; letter-spacing: 0.5px; transition: all 0.3s ease; }
         .btn-logout, .btn-password, .btn-submit, .btn-resume, .btn-export, .btn-edit, .btn-delete {
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 700;
-            text-transform: uppercase;
+            border: none; border-radius: 4px; cursor: pointer; font-weight: 700; text-transform: uppercase;
         }
         .btn-logout { background: rgba(220, 38, 38, 0.1); color: var(--danger); border: 1px solid var(--danger); padding: 6px 12px; font-size: 12px; }
         .btn-logout:hover { background: var(--danger); color: #fff; box-shadow: 0 0 5px var(--danger); }
@@ -133,12 +104,7 @@
         .btn-password:hover { background: var(--neon-cyan); color: #fff; box-shadow: 0 0 5px var(--neon-cyan); }
         
         .btn-submit {
-            background: linear-gradient(90deg, #33AADD, #0088CC);
-            color: #FFFFFF;
-            font-size: 15px;
-            padding: 12px 24px;
-            width: 100%;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(90deg, #33AADD, #0088CC); color: #FFFFFF; font-size: 15px; padding: 12px 24px; width: 100%; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         .btn-submit:hover { box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); transform: translateY(-2px); }
         .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -155,7 +121,6 @@
         .btn-delete { background: rgba(220, 38, 38, 0.15); color: var(--danger); border: 1px solid var(--danger); padding: 4px 8px; font-size: 10px; margin-top: 6px; margin-left: 4px; }
         .btn-delete:hover { background: var(--danger); color: #fff; box-shadow: 0 0 4px var(--danger); }
 
-        /* Header Dokumen & Penyesuaian Logo */
         .header-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; border-bottom: 2px solid var(--glass-border); }
         .logo-container-login img { width: 110px; height: auto; margin: 0 auto 15px; display: block; border-radius: 8px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); }
         .logo-container-app img { width: 90px; height: auto; border-radius: 6px; display: block; margin: 0 auto; }
@@ -164,7 +129,6 @@
         .doc-meta-right { text-align: right; font-size: 13px; color: var(--text-muted); padding-bottom: 12px; }
         .main-title { text-align: center; font-size: 20px; font-weight: 700; color: var(--text-main); text-transform: uppercase; margin: 20px 0 30px 0; letter-spacing: 2px; }
         
-        /* Form Inputs */
         h2 { font-size: 16px; font-weight: 600; color: var(--neon-cyan); text-transform: uppercase; border-left: 4px solid var(--neon-cyan); padding-left: 10px; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.05); }
         .kpi-title { color: var(--gold); border-left-color: var(--gold); text-shadow: 0 1px 1px rgba(0, 0, 0, 0.05); }
         
@@ -173,16 +137,8 @@
         .label-cell { width: 30%; font-size: 15px; font-weight: 600; color: var(--text-main); }
         
         .form-control {
-            width: 100%;
-            height: 42px;
-            padding: 8px 15px;
-            font-size: 14px;
-            font-family: 'Rajdhani', sans-serif;
-            color: var(--text-main); 
-            background-color: var(--input-bg);
-            border: 1px solid #E2E8F0; 
-            border-radius: 6px;
-            transition: all 0.3s;
+            width: 100%; height: 42px; padding: 8px 15px; font-size: 14px; font-family: 'Rajdhani', sans-serif; color: var(--text-main); 
+            background-color: var(--input-bg); border: 1px solid #E2E8F0; border-radius: 6px; transition: all 0.3s;
         }
         .form-control:focus { outline: none; border-color: var(--neon-cyan); box-shadow: 0 0 5px rgba(0, 136, 204, 0.2); background-color: #FFFFFF; }
         .form-control::placeholder { color: var(--text-muted); }
@@ -190,25 +146,13 @@
         .form-control[readonly], select[readonly] { background-color: #F8FAFC; border-color: #E2E8F0; color: var(--text-muted); cursor: not-allowed; }
         textarea.form-control { height: auto; min-height: 90px; resize: vertical; }
         
-        /* Inline Tables */
         .target-time-table { width: 100%; border-collapse: collapse; }
         .target-time-table td { padding: 0 10px 0 0; width: 50%; }
         .inline-label { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 6px; display: block; }
         
-        /* Dashboard & History Areas */
-        .dashboard-container, .history-container, .pending-container { 
-            margin-top: 30px; 
-            padding: 25px; 
-        }
+        .dashboard-container, .history-container, .pending-container { margin-top: 30px; padding: 25px; }
         
-        /* Table Responsive Wrapper */
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            margin-top: 15px;
-        }
-
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 15px; }
         .history-table { width: 100%; border-collapse: collapse; font-size: 13px; white-space: nowrap; }
         .history-table th, .history-table td { border: 1px solid #E2E8F0; padding: 10px; text-align: left; }
         .history-table th { background-color: #F8FAFC; color: var(--text-main); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
@@ -224,32 +168,23 @@
         .status-good { background: rgba(22, 163, 74, 0.1); color: var(--success); border: 1px solid var(--success); }
         .status-kpi { background: rgba(202, 138, 4, 0.1); color: var(--gold); border: 1px solid var(--gold); }
 
-        /* Modal */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); overflow-y: auto;}
         .modal-content { background-color: #FFFFFF; margin: 5vh auto; padding: 30px; border: 1px solid #E2E8F0; border-radius: 12px; width: 90%; max-width: 400px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
         .close-modal { float: right; font-size: 28px; font-weight: bold; cursor: pointer; color: var(--text-muted); line-height: 1; margin-top: -10px; }
         .close-modal:hover { color: var(--danger); }
 
-        /* =========================================
-           MEDIA QUERIES (RESPONSIVE CONFIG)
-           ========================================= */
         @media (max-width: 768px) {
             body { padding: 10px; }
             .form-wrapper, .login-wrapper { padding: 20px 15px; }
-            
             .live-clock-container { flex-direction: column; gap: 15px; text-align: center; }
             .header-controls { width: 100%; justify-content: center; flex-wrap: wrap; }
             .header-controls button { flex: 1; min-width: 120px; }
-            
             .header-table tr, .header-table td { display: block; text-align: center; padding-right: 0; }
             .logo-container-app img { margin-bottom: 15px; }
             .doc-meta-right { text-align: center; padding-top: 10px; border-top: 1px solid #E2E8F0; margin-top: 10px; }
-            
             .form-table td { display: block; width: 100%; padding: 6px 0; }
             .label-cell { color: var(--neon-cyan); font-size: 14px; margin-bottom: 2px; }
-            
             .target-time-table td { display: block; width: 100%; padding: 0; margin-bottom: 10px; }
-            
             .history-controls { flex-direction: column; width: 100%; }
             .search-input, .btn-export { width: 100%; }
         }
@@ -307,6 +242,19 @@
         </h3>
         <form onsubmit="submitEditHistory(event)">
             <input type="hidden" id="edit_key">
+            
+            <div style="margin-bottom: 12px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Kode Form</label>
+                <input type="text" class="form-control" id="edit_formNo" required>
+            </div>
+            <div style="margin-bottom: 12px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Timestamp</label>
+                <input type="text" class="form-control" id="edit_waktu" required>
+            </div>
+            <div style="margin-bottom: 12px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Operator</label>
+                <input type="text" class="form-control" id="edit_operator" required>
+            </div>
             
             <div style="margin-bottom: 12px;">
                 <label style="font-size:12px; font-weight:600; color:var(--text-muted);">No. SPP</label>
@@ -446,6 +394,16 @@
                                 <input type="text" class="form-control" id="std_waktu" placeholder="Auto-kalkulasi" readonly>
                             </td>
                         </tr>
+                        <tr>
+                            <td style="padding-top: 10px;">
+                                <span class="inline-label">Total Waktu Dikerjakan (Jam)</span>
+                                <input type="text" class="form-control" id="waktu_terpakai" placeholder="0" readonly style="color:var(--warning); font-weight:bold; background-color:#FFFBEB;">
+                            </td>
+                            <td style="padding-top: 10px;">
+                                <span class="inline-label">Sisa Waktu Target (Jam)</span>
+                                <input type="text" class="form-control" id="waktu_sisa" placeholder="0" readonly style="color:var(--success); font-weight:bold; background-color:#F0FDF4;">
+                            </td>
+                        </tr>
                     </table>
                 </td>
             </tr>
@@ -481,7 +439,7 @@
                         <option value="1. Persiapan Material">[Fase 1] Persiapan Material</option>
                         <option value="2. Perakitan Frame">[Fase 2] Perakitan Frame</option>
                         <option value="3. Proses Cat / Finishing">[Fase 3] Proses Cat / Finishing</option>
-                        <option value="4. Instalasi Plumbing">[Fase 4] Instalasi Plumbing</option>
+                        <option value="4. Instalasi Membran/Housing">[Fase 4] Instalasi Membran/Housing</option>
                         <option value="5. Kelistrikan & Panel">[Fase 5] Kelistrikan & Panel</option>
                         <option value="6. Running Test & QC">[Fase 6] Running Test & QC</option>
                         <option value="7. Packing & Selesai (Final)">[Fase 7] Packing & Selesai (Final)</option>
@@ -591,6 +549,8 @@
                         <th>Parameter Produk</th>
                         <th>Kategori</th>
                         <th>Target Waktu</th>
+                        <th>Total Dikerjakan</th>
+                        <th>Sisa Waktu</th>
                         <th>Status</th>
                         <th>Catatan Khusus</th>
                         <th>Log Pekerjaan</th>
@@ -702,14 +662,6 @@
         "Other": { op: "", time: "" }
     };
 
-    const extraOptions = [
-        { value: "Selesai Awal", text: "Pekerjaan Selesai Awal" },
-        { value: "Selesai Tepat Waktu", text: "Pekerjaan Selesai Tepat Waktu" },
-        { value: "Lanjutkan Besok", text: "Lanjutkan Besok" },
-        { value: "Lembur (Reguler) - 4 Jam", text: "Lembur (Reguler) - 4 Jam" },
-        { value: "Lembur (Sabtu/Minggu) - 9 Jam", text: "Lembur (Sabtu/Minggu) - 9 Jam" }
-    ];
-
     const selectProduk = document.getElementById("nama_produk");
     for (let key in productData) {
         let option = document.createElement("option");
@@ -718,9 +670,9 @@
         selectProduk.appendChild(option);
     }
 
-    // ==========================================
-    // HELPER FUNCTION: FUNGSI TOGGLE UNTUK OPSI OTHER
-    // ==========================================
+    // Listener Realtime untuk Form "No. SPP" guna mengkalkulasi waktu
+    document.getElementById('no_spp').addEventListener('input', updateTimeDisplay);
+
     function toggleManualOption(selectElement, rowId, inputId) {
         const row = document.getElementById(rowId);
         const input = document.getElementById(inputId);
@@ -730,22 +682,17 @@
         } else {
             row.classList.add('hidden');
             input.removeAttribute('required');
-            input.value = ''; // Kosongkan field
+            input.value = '';
         }
     }
 
-    // ==========================================
-    // HELPER FUNCTION: KONVERSI BASE64 UNTUK GAMBAR
-    // ==========================================
     function getBase64(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = () => {
                 let encoded = reader.result.toString().replace(/^data:(.*,)?/, '');
-                if ((encoded.length % 4) > 0) {
-                    encoded += '='.repeat(4 - (encoded.length % 4));
-                }
+                if ((encoded.length % 4) > 0) { encoded += '='.repeat(4 - (encoded.length % 4)); }
                 resolve({ name: file.name, mimeType: file.type, base64: encoded });
             };
             reader.onerror = error => reject(error);
@@ -769,6 +716,13 @@
         let counter = snapshot.val() || 1;
         localStorage.setItem('formCounterTT', counter);
         updateFormNumberDisplay();
+    });
+
+    db.ref('spkTracking').on('value', (snapshot) => {
+        const data = snapshot.val() || {};
+        for (let key in spkTracking) delete spkTracking[key];
+        Object.assign(spkTracking, data);
+        updateTimeDisplay();
     });
 
     db.ref('pendingJobs').on('value', (snapshot) => {
@@ -802,7 +756,6 @@
             const userObj = JSON.parse(loggedInUser);
             document.getElementById('header_operator_name').innerHTML = `[OPR: <strong>${userObj.name}</strong>]`;
             
-            // Tampilkan KPI Dashboard jika rolenya Developer
             if(userObj.role === 'Developer') {
                 document.getElementById('kpiDashboardContainer').classList.remove('hidden');
             } else {
@@ -814,8 +767,7 @@
                 renderHistoryTable(d);
                 renderKPIDashboard(d);
             });
-            
-            renderPendingJobs(); // Re-render for appropriate buttons based on Role
+            renderPendingJobs(); 
         } else {
             document.getElementById('login-section').classList.remove('d-none');
             document.getElementById('main-app').classList.add('d-none');
@@ -830,8 +782,7 @@
         let foundUser = null;
         for (let user in dbAuth) {
             if (String(dbAuth[user].pass) === String(pass)) {
-                foundUser = { name: user, role: dbAuth[user].role };
-                break;
+                foundUser = { name: user, role: dbAuth[user].role }; break;
             }
         }
 
@@ -859,10 +810,9 @@
     function updatePassword(event) {
         event.preventDefault();
         const btnUpdate = document.getElementById('btn-update-password');
-        btnUpdate.innerText = "MENYIMPAN...";
-        btnUpdate.disabled = true;
-
+        btnUpdate.innerText = "MENYIMPAN..."; btnUpdate.disabled = true;
         const resetBtn = () => { btnUpdate.innerText = "SIMPAN SANDI BARU"; btnUpdate.disabled = false; };
+        
         try {
             const loggedInUser = JSON.parse(localStorage.getItem('loggedInUserPTTT'));
             const dbAuth = JSON.parse(localStorage.getItem('authDataPTTT'));
@@ -877,8 +827,7 @@
                 .then(() => {
                     dbAuth[loggedInUser.name].pass = newPass;
                     localStorage.setItem('authDataPTTT', JSON.stringify(dbAuth));
-                    alert("✅ Sandi berhasil diperbarui!");
-                    closePasswordModal();
+                    alert("✅ Sandi berhasil diperbarui!"); closePasswordModal();
                 })
                 .catch((error) => alert("❌ Error: " + error.message))
                 .finally(() => resetBtn());
@@ -899,6 +848,27 @@
         document.getElementById('form_no_display').innerText = getNextFormNumber();
     }
 
+    function updateTimeDisplay() {
+        const spp = document.getElementById('no_spp').value;
+        const terpakaiInput = document.getElementById('waktu_terpakai');
+        const sisaInput = document.getElementById('waktu_sisa');
+        const stdWaktuStr = document.getElementById('std_waktu').value;
+        
+        let target = parseInt(stdWaktuStr) || 0;
+
+        if (spp && spkTracking[spp]) {
+            let terpakai = spkTracking[spp].accumulatedUsed || 0;
+            terpakaiInput.value = terpakai.toFixed(1);
+            let sisa = target - terpakai;
+            sisaInput.value = sisa.toFixed(1);
+            sisaInput.style.color = sisa < 0 ? 'var(--danger)' : 'var(--success)';
+        } else {
+            terpakaiInput.value = "0.0";
+            sisaInput.value = target ? target.toFixed(1) : "0.0";
+            sisaInput.style.color = 'var(--success)';
+        }
+    }
+
     function updateProductData() {
         const selected = selectProduk.value;
         const opField = document.getElementById("std_operator");
@@ -908,44 +878,66 @@
 
         if (selected && productData[selected]) {
             if (selected === "Other") {
-                manualRow.classList.remove("hidden");
-                manualInput.setAttribute("required", "true");
+                manualRow.classList.remove("hidden"); manualInput.setAttribute("required", "true");
                 opField.removeAttribute("readonly"); timeField.removeAttribute("readonly");
                 opField.value = ""; timeField.value = "";
             } else {
-                manualRow.classList.add("hidden");
-                manualInput.removeAttribute("required");
+                manualRow.classList.add("hidden"); manualInput.removeAttribute("required");
                 opField.setAttribute("readonly", "true"); timeField.setAttribute("readonly", "true");
                 opField.value = productData[selected].op; timeField.value = productData[selected].time;
             }
         }
+        updateTimeDisplay();
     }
 
     function checkTimeLogic() {
         const timeVal = document.getElementById('waktu_update').value;
         if (!timeVal) return;
-        const dateObj = new Date(timeVal);
-        const hours = dateObj.getHours();
+        
+        const hours = new Date(timeVal).getHours();
         const select = document.getElementById('kondisi_kerja');
         const currentValue = select.value;
 
-        Array.from(select.options).forEach(opt => { if (opt.classList.contains('opt-16')) select.removeChild(opt); });
+        // Bersihkan opsi dinamis sebelumnya
+        Array.from(select.options).forEach(opt => { 
+            if (opt.classList.contains('opt-dynamic')) select.removeChild(opt); 
+        });
 
-        if (hours >= 16) {
-            extraOptions.forEach(eo => {
-                const option = document.createElement('option');
-                option.value = eo.value; option.text = eo.text; option.classList.add('opt-16');
-                // Insert extra options before the "Other" option if it exists
-                const otherOpt = select.querySelector('.opt-other');
-                if (otherOpt) select.insertBefore(option, otherOpt);
-                else select.appendChild(option);
-            });
-            if (extraOptions.some(eo => eo.value === currentValue)) select.value = currentValue;
-        } else {
-            if (extraOptions.some(eo => eo.value === currentValue)) select.value = "Idle Time"; 
+        let optionsToAdd = [];
+
+        // Opsi "Selesai Awal" muncul antara 08:00 - 15:59
+        if (hours >= 8 && hours < 16) {
+            optionsToAdd.push({ value: "Selesai Awal", text: "Pekerjaan Selesai Awal" });
         }
         
-        // Panggil toggleManualOption agar kolom manual tertutup jika status direset
+        // Opsi lainnya muncul di atas 16:00
+        if (hours >= 16) {
+            optionsToAdd.push({ value: "Selesai Tepat Waktu", text: "Pekerjaan Selesai Tepat Waktu" });
+            optionsToAdd.push({ value: "Lanjutkan Besok", text: "Lanjutkan Besok" });
+            optionsToAdd.push({ value: "Lembur (Reguler) - 4 Jam", text: "Lembur (Reguler) - 4 Jam" });
+            optionsToAdd.push({ value: "Lembur (Sabtu/Minggu) - 9 Jam", text: "Lembur (Sabtu/Minggu) - 9 Jam" });
+        }
+
+        // Eksekusi penambahan opsi ke dalam elemen select
+        optionsToAdd.forEach(eo => {
+            const option = document.createElement('option');
+            option.value = eo.value; 
+            option.text = eo.text; 
+            option.classList.add('opt-dynamic'); // Tag khusus untuk dihapus saat refresh
+            
+            const otherOpt = select.querySelector('.opt-other');
+            if (otherOpt) select.insertBefore(option, otherOpt);
+            else select.appendChild(option);
+        });
+
+        // Validasi pemilihan ulang
+        let isOptionExists = Array.from(select.options).some(opt => opt.value === currentValue);
+        if (isOptionExists) {
+            select.value = currentValue;
+        } else {
+            select.value = "Idle Time";
+        }
+        
         toggleManualOption(select, 'row_manual_kondisi', 'manual_kondisi');
     }
 
@@ -958,24 +950,21 @@
         
         let items = [];
         for (let id in data) {
-            let item = data[id];
-            item.firebaseKey = id; 
-            items.push(item);
+            let item = data[id]; item.firebaseKey = id; items.push(item);
         }
         items.sort((a, b) => b.formNo.localeCompare(a.formNo));
 
-        const loggedInUserStr = localStorage.getItem('loggedInUserPTTT');
-        let userRole = loggedInUserStr ? JSON.parse(loggedInUserStr).role : "";
+        const userRole = localStorage.getItem('loggedInUserPTTT') ? JSON.parse(localStorage.getItem('loggedInUserPTTT')).role : "";
 
         items.forEach(item => {
             let statusHtml = `<strong style="color:var(--warning);">${item.kondisi}</strong>`;
-            
-            // Tombol Khusus Developer: Edit & Delete
             if (userRole === 'Developer') {
                 statusHtml += `<br>
                 <button class="btn-edit" onclick="openEditHistoryModal('${item.firebaseKey}')">EDIT</button>
                 <button class="btn-delete" onclick="deleteHistoryItem('${item.firebaseKey}')">HAPUS</button>`;
             }
+            
+            let colorSisa = parseFloat(item.waktuSisa) < 0 ? 'var(--danger)' : 'var(--success)';
 
             const tr = document.createElement("tr");
             tr.innerHTML = `
@@ -986,6 +975,8 @@
                 <td>${item.namaProduk}</td>
                 <td><span class="status-badge status-good">${item.kategori || 'Reguler'}</span></td>
                 <td>${item.stdWaktu}</td>
+                <td><strong style="color:var(--warning);">${item.waktuTerpakai || '0.0'} Jam</strong></td>
+                <td><strong style="color:${colorSisa};">${item.waktuSisa || item.stdWaktu || '0.0'} Jam</strong></td>
                 <td>${statusHtml}</td>
                 <td>${item.alasan}</td>
                 <td>${item.uraian}</td>
@@ -1009,63 +1000,41 @@
     function renderKPIDashboard(data) {
         const tbody = document.getElementById("kpiTable").querySelector("tbody");
         tbody.innerHTML = "";
-
-        // Tahap 1: Lacak otomatis ada berapa orang unik yang ikut mengerjakan sebuah SPP
         let sppWorkers = {}; 
+        
         for(let key in data) {
             let item = data[key];
             if(item.noSpp) {
                 if(!sppWorkers[item.noSpp]) sppWorkers[item.noSpp] = new Set();
-                sppWorkers[item.noSpp].add(item.operator); // Set otomatis mengabaikan nama ganda
+                sppWorkers[item.noSpp].add(item.operator); 
             }
         }
 
-        // Tahap 2: Kalkulasi Skor KPI
         let operatorStats = {};
         for(let key in data) {
             let item = data[key];
             if(!item.kondisi) continue;
             
             let isCompleted = item.kondisi.includes("Selesai") || item.kondisi.includes("Lembur");
-
-            if(!operatorStats[item.operator]) {
-                operatorStats[item.operator] = { totalDone: 0, onTime: 0, early: 0, overtime: 0, totalScore: 0 };
-            }
+            if(!operatorStats[item.operator]) operatorStats[item.operator] = { totalDone: 0, onTime: 0, early: 0, overtime: 0, totalScore: 0 };
 
             if(isCompleted) {
                 operatorStats[item.operator].totalDone++;
-                
                 let baseScore = 0;
+                
+                if(item.kondisi === "Selesai Tepat Waktu") { operatorStats[item.operator].onTime++; baseScore = 100; }
+                else if(item.kondisi === "Selesai Awal") { operatorStats[item.operator].early++; baseScore = 110; } 
+                else if(item.kondisi.includes("Lembur")) { operatorStats[item.operator].overtime++; baseScore = 80; } 
+                else baseScore = 90; 
 
-                // A. Poin Ketepatan Waktu
-                if(item.kondisi === "Selesai Tepat Waktu") {
-                    operatorStats[item.operator].onTime++;
-                    baseScore = 100;
-                } else if(item.kondisi === "Selesai Awal") {
-                    operatorStats[item.operator].early++;
-                    baseScore = 110; 
-                } else if(item.kondisi.includes("Lembur")) {
-                    operatorStats[item.operator].overtime++;
-                    baseScore = 80; // Pinalti karena tidak tepat waktu (lembur)
-                } else {
-                    baseScore = 90; 
-                }
-
-                // B. Poin Manpower (Auto-Detect dari Set pekerja unik di SPP yang sama)
                 let actMP = sppWorkers[item.noSpp].size; 
-                let stdMP = item.stdManpower || 1; // Standar manpower tersimpan di log
+                let stdMP = item.stdManpower || 1; 
                 let penaltyManpower = 0;
 
-                if (actMP > stdMP) {
-                    // Pengurangan poin jika pekerja yang terlibat melebihi standar
-                    penaltyManpower = (actMP - stdMP) * 15;
-                } else if (actMP < stdMP && actMP > 0) {
-                    // Bonus poin jika yang ngerjain lebih sedikit dari standar
-                    penaltyManpower = -10; 
-                }
+                if (actMP > stdMP) penaltyManpower = (actMP - stdMP) * 15;
+                else if (actMP < stdMP && actMP > 0) penaltyManpower = -10; 
 
-                let finalTaskScore = baseScore - penaltyManpower;
-                operatorStats[item.operator].totalScore += finalTaskScore;
+                operatorStats[item.operator].totalScore += (baseScore - penaltyManpower);
             }
         }
 
@@ -1076,7 +1045,6 @@
             hasData = true;
 
             let finalScore = stats.totalScore / stats.totalDone;
-            // Cap skor di angka 100 secara visual jika melebihi 100
             if(finalScore > 100) finalScore = 100; 
 
             let badgeClass = finalScore >= 90 ? "status-good" : (finalScore >= 75 ? "status-kpi" : "status-danger");
@@ -1093,9 +1061,7 @@
             tbody.appendChild(tr);
         }
 
-        if(!hasData) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Belum ada data penyelesaian (Selesai/Lembur) untuk dinilai.</td></tr>`;
-        }
+        if(!hasData) tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Belum ada data penyelesaian (Selesai/Lembur) untuk dinilai.</td></tr>`;
     }
 
     // ==========================================
@@ -1106,18 +1072,14 @@
         const container = document.getElementById("pendingContainer");
         tbody.innerHTML = "";
         let hasPending = false;
-
-        const loggedInUserStr = localStorage.getItem('loggedInUserPTTT');
-        let userRole = loggedInUserStr ? JSON.parse(loggedInUserStr).role : "";
+        let userRole = localStorage.getItem('loggedInUserPTTT') ? JSON.parse(localStorage.getItem('loggedInUserPTTT')).role : "";
 
         for (let spp in pendingJobs) {
             const job = pendingJobs[spp];
             hasPending = true;
             
             let actionHtml = `<button type="button" class="btn-resume" onclick="resumeJob('${spp}')">LANJUTKAN</button>`;
-            if (userRole === 'Developer') {
-                actionHtml += `<button type="button" class="btn-delete" onclick="deletePendingJob('${spp}')" style="margin-left:5px;">HAPUS</button>`;
-            }
+            if (userRole === 'Developer') { actionHtml += `<button type="button" class="btn-delete" onclick="deletePendingJob('${spp}')" style="margin-left:5px;">HAPUS</button>`; }
 
             const tr = document.createElement("tr");
             tr.innerHTML = `
@@ -1129,11 +1091,9 @@
             `;
             tbody.appendChild(tr);
         }
-        if (hasPending) container.classList.remove("hidden");
-        else container.classList.add("hidden");
+        if (hasPending) container.classList.remove("hidden"); else container.classList.add("hidden");
     }
 
-    // Fungsi Menghapus Pending Job (Dev Only)
     function deletePendingJob(spp) {
         if(confirm(`Peringatan (Khusus Developer): Anda yakin ingin menghapus SPP "${spp}" dari antrean tertunda secara permanen?`)) {
             db.ref(`pendingJobs/${spp}`).remove()
@@ -1145,28 +1105,24 @@
     function openEditHistoryModal(key) {
         const item = globalHistoryData[key];
         document.getElementById('edit_key').value = key;
+        
+        // Load Form Info, Waktu, Operator
+        document.getElementById('edit_formNo').value = item.formNo || "";
+        document.getElementById('edit_waktu').value = item.waktu || "";
+        document.getElementById('edit_operator').value = item.operator || "";
+
         document.getElementById('edit_spp').value = item.noSpp || "";
         document.getElementById('edit_produk').value = item.namaProduk || "";
         
         const kategoriSelect = document.getElementById('edit_kategori');
         let hasKatOpt = false;
-        for (let i = 0; i < kategoriSelect.options.length; i++) {
-            if (kategoriSelect.options[i].value === item.kategori) { kategoriSelect.selectedIndex = i; hasKatOpt = true; break; }
-        }
-        if (!hasKatOpt) {
-            let newOpt = document.createElement("option"); newOpt.value = item.kategori; newOpt.text = item.kategori;
-            kategoriSelect.appendChild(newOpt); kategoriSelect.value = item.kategori;
-        }
+        for (let i = 0; i < kategoriSelect.options.length; i++) { if (kategoriSelect.options[i].value === item.kategori) { kategoriSelect.selectedIndex = i; hasKatOpt = true; break; } }
+        if (!hasKatOpt) { let newOpt = document.createElement("option"); newOpt.value = item.kategori; newOpt.text = item.kategori; kategoriSelect.appendChild(newOpt); kategoriSelect.value = item.kategori; }
 
         const statusSelect = document.getElementById('edit_status');
         let hasStatOpt = false;
-        for (let i = 0; i < statusSelect.options.length; i++) {
-            if (statusSelect.options[i].value === item.kondisi) { statusSelect.selectedIndex = i; hasStatOpt = true; break; }
-        }
-        if (!hasStatOpt) {
-            let newOpt = document.createElement("option"); newOpt.value = item.kondisi; newOpt.text = item.kondisi;
-            statusSelect.appendChild(newOpt); statusSelect.value = item.kondisi;
-        }
+        for (let i = 0; i < statusSelect.options.length; i++) { if (statusSelect.options[i].value === item.kondisi) { statusSelect.selectedIndex = i; hasStatOpt = true; break; } }
+        if (!hasStatOpt) { let newOpt = document.createElement("option"); newOpt.value = item.kondisi; newOpt.text = item.kondisi; statusSelect.appendChild(newOpt); statusSelect.value = item.kondisi; }
 
         document.getElementById('edit_stdwaktu').value = item.stdWaktu || "";
         document.getElementById('edit_alasan').value = item.alasan || "";
@@ -1180,6 +1136,9 @@
         event.preventDefault();
         const key = document.getElementById('edit_key').value;
         const newData = {
+            formNo: document.getElementById('edit_formNo').value,
+            waktu: document.getElementById('edit_waktu').value,
+            operator: document.getElementById('edit_operator').value,
             noSpp: document.getElementById('edit_spp').value,
             namaProduk: document.getElementById('edit_produk').value,
             kategori: document.getElementById('edit_kategori').value,
@@ -1194,19 +1153,12 @@
     }
 
     function resumeJob(spp) {
-        const job = pendingJobs[spp];
-        if(!job) return;
+        const job = pendingJobs[spp]; if(!job) return;
         document.getElementById("no_spp").value = spp;
         const produkSelect = document.getElementById("nama_produk");
         let isOther = true;
-        for (let i = 0; i < produkSelect.options.length; i++) {
-            if (produkSelect.options[i].value === job.namaProduk) { produkSelect.selectedIndex = i; isOther = false; break; }
-        }
-        if (isOther) { 
-            produkSelect.value = "Other"; 
-            document.getElementById("manual_nama_produk").value = job.namaProduk; 
-            document.getElementById("row_manual_produk").classList.remove('hidden');
-        }
+        for (let i = 0; i < produkSelect.options.length; i++) { if (produkSelect.options[i].value === job.namaProduk) { produkSelect.selectedIndex = i; isOther = false; break; } }
+        if (isOther) { produkSelect.value = "Other"; document.getElementById("manual_nama_produk").value = job.namaProduk; document.getElementById("row_manual_produk").classList.remove('hidden'); }
         updateProductData();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -1235,22 +1187,13 @@
         const stdWaktu = document.getElementById("std_waktu").value;
         const uraian = document.getElementById("uraian_pekerjaan").value;
         
-        // Pengecekan Dropdown dengan opsi "Other"
-        let namaProduk = document.getElementById("nama_produk").value;
-        if(namaProduk === "Other") namaProduk = document.getElementById("manual_nama_produk").value;
-        
-        let kategori = document.getElementById("kategori_pekerjaan").value;
-        if(kategori === "Other") kategori = document.getElementById("manual_kategori").value;
-        
-        let kondisi = document.getElementById("kondisi_kerja").value;
-        if(kondisi === "Other") kondisi = document.getElementById("manual_kondisi").value;
-        
-        let tahapProduksi = document.getElementById("tahap_produksi").value;
-        if(tahapProduksi === "Other") tahapProduksi = document.getElementById("manual_tahap").value;
+        let namaProduk = document.getElementById("nama_produk").value; if(namaProduk === "Other") namaProduk = document.getElementById("manual_nama_produk").value;
+        let kategori = document.getElementById("kategori_pekerjaan").value; if(kategori === "Other") kategori = document.getElementById("manual_kategori").value;
+        let kondisi = document.getElementById("kondisi_kerja").value; if(kondisi === "Other") kondisi = document.getElementById("manual_kondisi").value;
+        let tahapProduksi = document.getElementById("tahap_produksi").value; if(tahapProduksi === "Other") tahapProduksi = document.getElementById("manual_tahap").value;
 
-        // Ambil Data Manpower Standar untuk dikirim ke DB agar mudah dikalkulasi KPI
         const stdOpString = document.getElementById("std_operator").value || "";
-        const stdManpower = parseInt(stdOpString) || 1; // Misal string "2 orang" di ekstrak jadi integer 2
+        const stdManpower = parseInt(stdOpString) || 1; 
 
         const statusButuhAlasan = ["Idle Time", "Stoppage", "Takeover", "Lanjutkan Besok", "Lembur (Reguler) - 4 Jam", "Lembur (Sabtu/Minggu) - 9 Jam"];
         let alasanKondisi = "-";
@@ -1282,12 +1225,16 @@
         }
 
         let targetHours = parseInt(stdWaktu) || 0;
+        let tracker;
+
         if (!spkTracking[noSpp]) {
             let defaultStart = new Date(waktuUpdate); defaultStart.setHours(8, 0, 0, 0);
-            spkTracking[noSpp] = { target: targetHours, accumulatedUsed: 0, isFrozen: false, lastStart: defaultStart.toISOString() };
+            tracker = { target: targetHours, accumulatedUsed: 0, isFrozen: false, lastStart: defaultStart.toISOString() };
+        } else {
+            tracker = { ...spkTracking[noSpp] }; 
         }
 
-        let tracker = spkTracking[noSpp]; let alertMessage = ""; let diffHours = 0;
+        let alertMessage = ""; let diffHours = 0;
 
         if (tracker.isFrozen) {
             alertMessage += `[SYS.LOG] Mengaktifkan ulang kalkulasi waktu dari status FREEZE.\n\n`;
@@ -1298,13 +1245,17 @@
             if (statusButuhAlasan.includes(kondisi) && !kondisi.includes("Lembur")) {
                 tracker.isFrozen = true;
                 alertMessage += `[STATUS] ${kondisi}\nSistem menghentikan perhitungan waktu (FREEZE).\n\n`;
+            } else {
+                tracker.lastStart = new Date(waktuUpdate).toISOString();
             }
         }
+        
+        let waktuTerpakaiFinal = (tracker.accumulatedUsed || 0).toFixed(1);
+        let waktuSisaFinal = (targetHours - tracker.accumulatedUsed).toFixed(1);
 
         const currentFormNo = getNextFormNumber();
         const formattedDate = new Date(waktuUpdate).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).toUpperCase();
         
-        // Push data komprehensif ke History DB (Hanya mencatat stdManpower)
         const promises = [db.ref('history').push().set({ 
             formNo: currentFormNo, 
             waktu: formattedDate, 
@@ -1313,15 +1264,20 @@
             namaProduk: namaProduk, 
             kategori: kategori, 
             stdWaktu: stdWaktu, 
+            waktuTerpakai: waktuTerpakaiFinal,
+            waktuSisa: waktuSisaFinal,
             kondisi: kondisi, 
             alasan: alasanKondisi, 
             uraian: uraian, 
-            foto: fotoName,
+            foto: fotoName, 
             stdManpower: stdManpower 
         })];
 
         if (kondisi.includes("Selesai")) promises.push(db.ref(`pendingJobs/${noSpp}`).remove());
         else promises.push(db.ref(`pendingJobs/${noSpp}`).set({ namaProduk: namaProduk, operator: operator, status: kondisi, tahap: tahapProduksi }));
+
+        // Push Tracking Waktu Terpakai
+        promises.push(db.ref(`spkTracking/${noSpp}`).set(tracker));
 
         let counter = parseInt(localStorage.getItem('formCounterTT')) || 1;
         promises.push(db.ref('config/formCounter').set(counter + 1));
@@ -1329,17 +1285,15 @@
         Promise.all(promises)
             .then(() => {
                 alert(alertMessage + "\n\n✅ Transmisi Data Sukses! Data & Foto telah tersimpan di cloud.");
-                // Reset form inputs
                 document.getElementById("no_spp").value = ""; 
                 document.getElementById("no_produksi").value = "";
                 document.getElementById("uraian_pekerjaan").value = ""; 
                 document.getElementById("foto_aktual").value = "";
-                
-                // Hide manual input rows
                 document.getElementById("row_manual_produk").classList.add('hidden');
                 document.getElementById("row_manual_kategori").classList.add('hidden');
                 document.getElementById("row_manual_kondisi").classList.add('hidden');
                 document.getElementById("row_manual_tahap").classList.add('hidden');
+                updateTimeDisplay(); // reset visual
             })
             .catch((error) => alert("❌ Transmisi Gagal: " + error.message))
             .finally(() => { submitBtn.innerText = "SUBMIT DATA PRODUKSI"; submitBtn.disabled = false; });
