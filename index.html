@@ -746,7 +746,7 @@
     });
 
     // ==========================================
-    // FUNGSI AUTENTIKASI DAN UBAH SANDI
+    // FUNGSI AUTENTIKASI DAN UBAH SANDI (TERMASUK STATUS PRESENCE)
     // ==========================================
     function checkLoginStatus() {
         const loggedInUser = localStorage.getItem('loggedInUserPTTT');
@@ -756,6 +756,22 @@
             const userObj = JSON.parse(loggedInUser);
             document.getElementById('header_operator_name').innerHTML = `[OPR: <strong>${userObj.name}</strong>]`;
             
+            // ==========================================
+            // PRESENCE SYSTEM: STATUS ONLINE
+            // ==========================================
+            const statusRef = db.ref('operatorStatus/' + userObj.name);
+            // 1. Set status menjadi online saat operator berhasil masuk / membuka aplikasi
+            statusRef.set({ 
+                status: "online", 
+                last_active: firebase.database.ServerValue.TIMESTAMP 
+            });
+            // 2. Fungsi onDisconnect() dari Firebase: Otomatis ubah jadi offline jika tab ditutup, hp mati, atau hilang sinyal internet
+            statusRef.onDisconnect().set({ 
+                status: "offline", 
+                last_active: firebase.database.ServerValue.TIMESTAMP 
+            });
+            // ==========================================
+
             if(userObj.role === 'Developer') {
                 document.getElementById('kpiDashboardContainer').classList.remove('hidden');
             } else {
@@ -797,6 +813,23 @@
 
     function handleLogout() {
         if(confirm("Selesaikan sesi kerja dan logout?")) {
+            
+            // ==========================================
+            // PRESENCE SYSTEM: STATUS OFFLINE MANUAL SAAT LOGOUT
+            // ==========================================
+            const loggedInUser = localStorage.getItem('loggedInUserPTTT');
+            if(loggedInUser) {
+                const userObj = JSON.parse(loggedInUser);
+                const statusRef = db.ref('operatorStatus/' + userObj.name);
+                // Matikan deteksi onDisconnect karena kita akan set offline secara manual
+                statusRef.onDisconnect().cancel(); 
+                statusRef.set({ 
+                    status: "offline", 
+                    last_active: firebase.database.ServerValue.TIMESTAMP 
+                });
+            }
+            // ==========================================
+
             localStorage.removeItem('loggedInUserPTTT');
             document.getElementById('login_password').value = "";
             checkLoginStatus();
