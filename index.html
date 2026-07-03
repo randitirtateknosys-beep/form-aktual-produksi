@@ -269,6 +269,14 @@
                 <input type="text" class="form-control" id="edit_produk" required>
             </div>
             <div style="margin-bottom: 12px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">No. Produksi</label>
+                <input type="text" class="form-control" id="edit_no_produksi">
+            </div>
+            <div style="margin-bottom: 12px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">No. Produk</label>
+                <input type="text" class="form-control" id="edit_no_produk">
+            </div>
+            <div style="margin-bottom: 12px;">
                 <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Kategori Pekerjaan</label>
                 <select class="form-control" id="edit_kategori" required>
                     <option value="Reguler">Reguler</option>
@@ -308,7 +316,6 @@
     </div>
 </div>
 
-<!-- Modal Edit Antrean Tertunda -->
 <div id="editPendingModal" class="modal">
     <div class="modal-content">
         <span class="close-modal" onclick="closeEditPendingModal()">&times;</span>
@@ -323,6 +330,14 @@
             <div style="margin-bottom: 12px;">
                 <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Nama Produk</label>
                 <input type="text" class="form-control" id="edit_pend_produk" required>
+            </div>
+            <div style="margin-bottom: 12px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">No. Produksi</label>
+                <input type="text" class="form-control" id="edit_pend_no_produksi">
+            </div>
+            <div style="margin-bottom: 12px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">No. Produk</label>
+                <input type="text" class="form-control" id="edit_pend_no_produk">
             </div>
             <div style="margin-bottom: 12px;">
                 <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Operator Terakhir</label>
@@ -394,6 +409,11 @@
                 <td class="input-cell"><input type="text" class="form-control" name="no_produksi" id="no_produksi" placeholder="Input Serial / Nomor Produksi (Opsional)"></td>
             </tr>
             
+            <tr>
+                <td class="label-cell">No. Produk</td>
+                <td class="input-cell"><input type="text" class="form-control" name="no_produk" id="no_produk" placeholder="Input Nomor Produk (Opsional)"></td>
+            </tr>
+
             <tr>
                 <td class="label-cell">Kategori Pekerjaan</td>
                 <td class="input-cell">
@@ -583,7 +603,7 @@
                         <th>Kode Form</th>
                         <th>Jam Mulai - Selesai</th>
                         <th>Operator</th>
-                        <th>Durasi SPP Aktual</th>
+                        <th>No. Produksi</th> <th>Durasi SPP Aktual</th>
                         <th>Sisa Waktu Target</th>
                         <th>Status Kerja</th>
                         <th>Catatan Khusus</th>
@@ -1030,8 +1050,7 @@
             let groupTr = document.createElement("tr");
             groupTr.style.backgroundColor = "#e0f2fe"; 
             groupTr.innerHTML = `
-                <td colspan="9" style="padding: 12px 15px; border: 1px solid #bae6fd;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                <td colspan="10" style="padding: 12px 15px; border: 1px solid #bae6fd;"> <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
                         <div>
                             <span style="font-size: 15px; font-weight: 700; color: var(--neon-blue);">📁 NO. SPP: ${spp}</span>
                             <span style="margin-left: 15px; font-weight: 600; color: var(--text-main);">🛒 Produk: ${sppInfo.namaProduk || 'N/A'}</span>
@@ -1057,7 +1076,7 @@
 
                 const tr = document.createElement("tr");
                 tr.setAttribute('data-spp', String(spp).toLowerCase());
-                tr.setAttribute('data-search', `${item.formNo || ''} ${item.operator || ''} ${spp} ${item.namaProduk || ''} ${item.kondisi || ''} ${item.uraian || ''}`.toLowerCase());
+                tr.setAttribute('data-search', `${item.formNo || ''} ${item.operator || ''} ${spp} ${item.namaProduk || ''} ${item.kondisi || ''} ${item.uraian || ''} ${item.noProduksi || ''} ${item.noProduk || ''}`.toLowerCase());
 
                 tr.innerHTML = `
                     <td><strong style="color:var(--neon-cyan);">${item.formNo}</strong></td>
@@ -1066,7 +1085,7 @@
                         <div style="font-weight: 600; font-size:12px;">Akhir: ${item.waktu}</div>
                     </td>
                     <td><strong style="color: var(--text-main);">${item.operator}</strong></td>
-                    <td><strong style="color:var(--warning);">${item.waktuTerpakai || '0.0'} Jam</strong></td>
+                    <td><strong>${item.noProduksi || '-'}</strong></td> <td><strong style="color:var(--warning);">${item.waktuTerpakai || '0.0'} Jam</strong></td>
                     <td><strong style="color:${colorSisa};">${item.waktuSisa || item.stdWaktu || '0.0'} Jam</strong></td>
                     <td>${statusHtml}</td>
                     <td style="white-space: normal; min-width: 150px;">${item.alasan}</td>
@@ -1210,6 +1229,8 @@
         const job = pendingJobs[safeSpp];
         document.getElementById('edit_pend_spp').value = safeSpp;
         document.getElementById('edit_pend_produk').value = job.namaProduk || "";
+        document.getElementById('edit_pend_no_produksi').value = job.noProduksi || "";
+        document.getElementById('edit_pend_no_produk').value = job.noProduk || "";
         document.getElementById('edit_pend_operator').value = job.operator || "";
         document.getElementById('edit_pend_status').value = job.status || "";
         document.getElementById('editPendingModal').style.display = "block";
@@ -1222,6 +1243,8 @@
         const safeSpp = document.getElementById('edit_pend_spp').value;
         const newData = {
             namaProduk: document.getElementById('edit_pend_produk').value,
+            noProduksi: document.getElementById('edit_pend_no_produksi').value,
+            noProduk: document.getElementById('edit_pend_no_produk').value,
             operator: document.getElementById('edit_pend_operator').value,
             status: document.getElementById('edit_pend_status').value
         };
@@ -1251,6 +1274,8 @@
         document.getElementById('edit_operator').value = item.operator || "";
         document.getElementById('edit_spp').value = item.noSpp || "";
         document.getElementById('edit_produk').value = item.namaProduk || "";
+        document.getElementById('edit_no_produksi').value = item.noProduksi || "";
+        document.getElementById('edit_no_produk').value = item.noProduk || "";
         
         const kategoriSelect = document.getElementById('edit_kategori');
         let hasKatOpt = false;
@@ -1280,6 +1305,8 @@
             operator: document.getElementById('edit_operator').value,
             noSpp: document.getElementById('edit_spp').value,
             namaProduk: document.getElementById('edit_produk').value,
+            noProduksi: document.getElementById('edit_no_produksi').value,
+            noProduk: document.getElementById('edit_no_produk').value,
             kategori: document.getElementById('edit_kategori').value,
             kondisi: document.getElementById('edit_status').value,
             stdWaktu: document.getElementById('edit_stdwaktu').value,
@@ -1297,6 +1324,8 @@
             promises.push(db.ref(`pendingJobs/${safeSpp}`).set({
                 originalSpp: newData.noSpp,
                 namaProduk: newData.namaProduk,
+                noProduksi: newData.noProduksi,
+                noProduk: newData.noProduk,
                 operator: newData.operator,
                 status: newData.kondisi,
                 tahap: globalHistoryData[key].tahapProduksi || "-"
@@ -1314,6 +1343,10 @@
     function resumeJob(safeSpp) {
         const job = pendingJobs[safeSpp]; if(!job) return;
         document.getElementById("no_spp").value = job.originalSpp || safeSpp;
+        
+        if(job.noProduksi) document.getElementById("no_produksi").value = job.noProduksi;
+        if(job.noProduk) document.getElementById("no_produk").value = job.noProduk;
+
         const produkSelect = document.getElementById("nama_produk");
         let isOther = true;
         for (let i = 0; i < produkSelect.options.length; i++) { if (produkSelect.options[i].value === job.namaProduk) { produkSelect.selectedIndex = i; isOther = false; break; } }
@@ -1367,6 +1400,10 @@
             const stdWaktu = document.getElementById("std_waktu").value;
             const uraian = document.getElementById("uraian_pekerjaan").value;
             
+            // Mengambil input No Produksi dan No Produk
+            const noProduksiValue = document.getElementById("no_produksi").value || "";
+            const noProdukValue = document.getElementById("no_produk").value || "";
+
             let namaProduk = document.getElementById("nama_produk").value; if(namaProduk === "Other") namaProduk = document.getElementById("manual_nama_produk").value;
             let kategori = document.getElementById("kategori_pekerjaan").value; if(kategori === "Other") kategori = document.getElementById("manual_kategori").value;
             let kondisi = document.getElementById("kondisi_kerja").value; if(kondisi === "Other") kondisi = document.getElementById("manual_kondisi").value;
@@ -1425,7 +1462,9 @@
                 waktu: formattedDateAkhir, 
                 operator: operator, 
                 noSpp: noSppOriginal, // Tetap simpan dengan format aslinya
-                namaProduk: namaProduk, 
+                namaProduk: namaProduk,
+                noProduksi: noProduksiValue, // Data No. Produksi masuk DB
+                noProduk: noProdukValue,     // Data No. Produk masuk DB
                 kategori: kategori, 
                 stdWaktu: stdWaktu, 
                 waktuTerpakai: waktuTerpakaiFinal,
@@ -1443,6 +1482,8 @@
                 promises.push(db.ref(`pendingJobs/${safeSpp}`).set({ 
                     originalSpp: noSppOriginal,
                     namaProduk: namaProduk, 
+                    noProduksi: noProduksiValue, // Data No. Produksi masuk DB Pending
+                    noProduk: noProdukValue,     // Data No. Produk masuk DB Pending
                     operator: operator, 
                     status: kondisi, 
                     tahap: tahapProduksi 
@@ -1459,6 +1500,7 @@
             alert(alertMessage + "✅ Transmisi Data Sukses! Data & Foto telah tersimpan di cloud.");
             document.getElementById("no_spp").value = ""; 
             document.getElementById("no_produksi").value = "";
+            document.getElementById("no_produk").value = ""; // Mengosongkan field setelah sukses
             document.getElementById("uraian_pekerjaan").value = ""; 
             document.getElementById("foto_aktual").value = "";
             document.getElementById("row_manual_produk").classList.add('hidden');
@@ -1486,7 +1528,7 @@
         for (let i = 0; i < rows.length; i++) {
             let row = rows[i];
             
-            if (row.children.length === 1 && row.children[0].colSpan === 9) {
+            if (row.children.length === 1 && row.children[0].colSpan === 10) { // UPDATE JUGA COLSPAN DI SEARCH LOGIC INI AGAR FUNGSI PENCARIAN TETAP JALAN
                 currentGroupHeader = row;
                 showCurrentGroup = false; 
                 if (row.innerText.toLowerCase().includes(filter)) {
