@@ -248,7 +248,11 @@
                 <input type="text" class="form-control" id="edit_formNo" required>
             </div>
             <div style="margin-bottom: 12px;">
-                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Timestamp</label>
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Waktu Mulai Pekerjaan</label>
+                <input type="text" class="form-control" id="edit_jamMulai" required>
+            </div>
+            <div style="margin-bottom: 12px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Waktu Selesai/Submit</label>
                 <input type="text" class="form-control" id="edit_waktu" required>
             </div>
             <div style="margin-bottom: 12px;">
@@ -300,6 +304,35 @@
                 <textarea class="form-control" id="edit_uraian" style="min-height: 60px;"></textarea>
             </div>
             <button type="submit" class="btn-submit" id="btn-save-edit" style="background: linear-gradient(90deg, #CA8A04, #f1c40f); color: #fff;">UBAH DATABASE</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Edit Antrean Tertunda -->
+<div id="editPendingModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeEditPendingModal()">&times;</span>
+        <h3 style="margin-top:0; color:var(--neon-cyan); border-bottom: 1px solid var(--glass-border); padding-bottom:10px; text-transform:uppercase; font-size: 18px;">
+            ⚙️ Edit Antrean Tertunda
+        </h3>
+        <form onsubmit="submitEditPending(event)">
+            <div style="margin-bottom: 12px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">No. SPP (Terkunci)</label>
+                <input type="text" class="form-control" id="edit_pend_spp" readonly style="background-color: #F8FAFC; color: var(--text-muted);">
+            </div>
+            <div style="margin-bottom: 12px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Nama Produk</label>
+                <input type="text" class="form-control" id="edit_pend_produk" required>
+            </div>
+            <div style="margin-bottom: 12px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Operator Terakhir</label>
+                <input type="text" class="form-control" id="edit_pend_operator" required>
+            </div>
+            <div style="margin-bottom: 25px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Status Terakhir</label>
+                <input type="text" class="form-control" id="edit_pend_status" required>
+            </div>
+            <button type="submit" class="btn-submit" style="background: linear-gradient(90deg, #CA8A04, #f1c40f); color: #fff;">UBAH DATA ANTREAN</button>
         </form>
     </div>
 </div>
@@ -412,8 +445,13 @@
         <h2>Status Eksekusi Lapangan</h2>
         <table class="form-table">
             <tr>
-                <td class="label-cell">Sinkronisasi Waktu</td>
-                <td class="input-cell"><input type="text" class="form-control" name="waktu_update" id="waktu_update" readonly required style="cursor: not-allowed; background-color: #F8FAFC; color: var(--text-main);"></td>
+                <td class="label-cell">Jam Mulai Pekerjaan</td>
+                <td class="input-cell"><input type="datetime-local" class="form-control" name="jam_mulai" id="jam_mulai" required></td>
+            </tr>
+
+            <tr>
+                <td class="label-cell">Waktu Submit Laporan</td>
+                <td class="input-cell"><input type="datetime-local" class="form-control" name="waktu_update" id="waktu_update" readonly required style="cursor: not-allowed; background-color: #F8FAFC; color: var(--text-main);"></td>
             </tr>
             
             <tr>
@@ -453,7 +491,7 @@
             </tr>
             
             <tr>
-                <td class="label-cell">Log Pekerjaan</td>
+                <td class="label-cell">Uraian Pekerjaan</td>
                 <td class="input-cell"><textarea class="form-control" id="uraian_pekerjaan" placeholder="Deskripsikan proses eksekusi..." required></textarea></td>
             </tr>
             <tr>
@@ -491,7 +529,7 @@
     <div class="dashboard-container glass-panel kpi-panel hidden" id="kpiDashboardContainer">
         <h2 class="kpi-title">🏆 Dashboard KPI & Evaluasi (Khusus Eksekutif)</h2>
         <p style="font-size:12px; color:var(--text-muted); margin-top:-10px; margin-bottom:15px;">
-            *Penilaian: Tepat Waktu = 100 | Selesai Awal = 110 | Terlambat(Lembur) = 80 | Penalti Jumlah Pekerja = -15 Poin/Kelebihan Orang | Bonus Hemat Pekerja = +10 Poin.
+            *Penilaian Tim: Tepat Waktu = 100 | Selesai Awal = 110 | Terlambat(Lembur) = 80 | Penalti Kelebihan Pekerja = -15 Poin | Bonus Hemat Pekerja = +10 Poin.
         </p>
         <div class="table-responsive">
             <table class="history-table kpi-table" id="kpiTable">
@@ -543,7 +581,7 @@
                 <thead>
                     <tr>
                         <th>Kode Form</th>
-                        <th>Timestamp</th>
+                        <th>Jam Mulai - Selesai</th>
                         <th>Operator</th>
                         <th>ID SPP</th>
                         <th>Parameter Produk</th>
@@ -553,7 +591,7 @@
                         <th>Sisa Waktu</th>
                         <th>Status</th>
                         <th>Catatan Khusus</th>
-                        <th>Log Pekerjaan</th>
+                        <th>Uraian Pekerjaan</th>
                         <th>Visual</th>
                     </tr>
                 </thead>
@@ -604,20 +642,20 @@
     // DATA PRODUK & INITIALISASI ARRAY
     // ==========================================
     const productData = {
-        "AQUATECH TRO 250 GPD/R": { op: "2 orang", time: "23 jam" },
-        "AQUATECH TRO 450 GPD/R": { op: "2 orang", time: "23 jam" },
-        "AQUTECH TRO 800 GPD/R": { op: "2 orang", time: "23 jam" },
-        "UPWS-50": { op: "2 orang", time: "23 jam" },
-        "AQUATECH TRO 250 GPD/E": { op: "1 orang", time: "7 jam" },
-        "AQUATECH TRO 450 GPD/E": { op: "1 orang", time: "7 jam" },
-        "AQUATECH TRO 800 GPD/E": { op: "1 orang", time: "7 jam" },
+        "AQUATECH TRO 250 GPD/R": { op: "2 orang", time: "24 jam" },
+        "AQUATECH TRO 450 GPD/R": { op: "2 orang", time: "24 jam" },
+        "AQUTECH TRO 800 GPD/R": { op: "2 orang", time: "24 jam" },
+        "UPWS-50": { op: "2 orang", time: "24 jam" },
+        "AQUATECH TRO 250 GPD/E": { op: "1 orang", time: "8 jam" },
+        "AQUATECH TRO 450 GPD/E": { op: "1 orang", time: "8 jam" },
+        "AQUATECH TRO 800 GPD/E": { op: "1 orang", time: "8 jam" },
         "AQUATECH TRO 1500 GPD/S": { op: "2 orang", time: "24 jam" },
         "AQUATECH TRO 3000 GPD/S": { op: "2 orang", time: "24 jam" },
         "AQUATECH TRO 4500 GPD/S": { op: "2 orang", time: "24 jam" },
         "AQUATECH TRO 6000 GPD/S": { op: "2 orang", time: "24 jam" },
-        "AQUATECH TRO 3000 GPD/BRX": { op: "2 orang", time: "24 jam" },
-        "AQUATECH TRO 4500 GPD/BRX": { op: "2 orang", time: "24 jam" },
-        "AQUATECH TRO 6000 GPD/BRX": { op: "2 orang", time: "24 jam" },
+        "AQUATECH TRO 3000 GPD/BRX": { op: "2 orang", time: "32 jam" },
+        "AQUATECH TRO 4500 GPD/BRX": { op: "2 orang", time: "32 jam" },
+        "AQUATECH TRO 6000 GPD/BRX": { op: "2 orang", time: "32 jam" },
         "AQUATECH TRO 1500 GPD/MX": { op: "2 orang", time: "24 jam" },
         "AQUATECH TRO 3000 GPD/MX": { op: "2 orang", time: "24 jam" },
         "AQUATECH TRO 4500 GPD/MX": { op: "2 orang", time: "24 jam" },
@@ -627,38 +665,40 @@
         "AQUATECH TRO 4500 GPD/L": { op: "2 orang", time: "24 jam" },
         "AQUATECH TRO 6000 GPD/L": { op: "2 orang", time: "24 jam" },
         "FLOOR STANDING": { op: "2 orang", time: "24 jam" },
-        "EF": { op: "1 orang", time: "7 jam" },
+        "PANEL AQUATECH TRO 3000 GPD/BRX": { op: "2 orang", time: "24 jam" },
+        "PANEL AQUATECH TRO 4500 GPD/BRX": { op: "2 orang", time: "24 jam" },
+        "PANEL AQUATECH TRO 6000 GPD/BRX": { op: "2 orang", time: "24 jam" },
+        "EF": { op: "1 orang", time: "8 jam" },
         "TRO MOBILE MH3": { op: "2 orang", time: "24 jam" },
         "UF BEAVER 8.0 AD": { op: "2 orang", time: "24 jam" },
         "UF BEAVER 4.0 AD": { op: "2 orang", time: "24 jam" },
-        "UF BEAVER 2.0 AD": { op: "2 orang", time: "7 jam" },
+        "UF BEAVER 2.0 AD": { op: "2 orang", time: "8 jam" },
         "UF BEAVER 24.0 AD": { op: "2 orang", time: "48 jam" },
-        "FRAME TRO 3000 6000 GPD BRX": { op: "2 orang", time: "15 jam" },
-        "FRAME TRO 250 - 800 GPD / E": { op: "2 orang", time: "15 jam" },
-        "FRAME TRO 250 - 800 GPD / R": { op: "2 orang", time: "15 jam" },
-        "FRAME UF 4.0 & 8.0 AD": { op: "2 orang", time: "15 jam" },
-        "FRAME UF 2.0 AD": { op: "2 orang", time: "7 jam" },
+        "FRAME TRO 3000 6000 GPD BRX": { op: "2 orang", time: "16 jam" },
+        "FRAME TRO 250 - 800 GPD / E": { op: "2 orang", time: "16 jam" },
+        "FRAME TRO 250 - 800 GPD / R": { op: "2 orang", time: "16 jam" },
+        "FRAME UF 4.0 & 8.0 AD": { op: "2 orang", time: "16 jam" },
+        "FRAME UF 2.0 AD": { op: "2 orang", time: "8 jam" },
         "FRAME UF 24.0 AD": { op: "2 orang", time: "24 jam" },
-        "FRAME WTP ZOOMBA": { op: "2 orang", time: "30 jam" },
-        "FRAME FLOOR STANDING": { op: "2 orang", time: "15 jam" },
-        "FRAME EF": { op: "1 orang", time: "7 jam" },
-        "FRAME TRO MOBILE MH3": { op: "2 orang", time: "15 jam" },
-        "SUPPORT POMPA TANKI": { op: "1 orang", time: "7 jam" },
-        "FRAME UPWS": { op: "2 orang", time: "15 jam" },
+        "FRAME WTP ZOOMBA": { op: "2 orang", time: "32 jam" },
+        "FRAME FLOOR STANDING": { op: "2 orang", time: "16 jam" },
+        "FRAME EF": { op: "1 orang", time: "8 jam" },
+        "FRAME TRO MOBILE MH3": { op: "2 orang", time: "16 jam" },
+        "SUPPORT POMPA TANKI": { op: "1 orang", time: "8 jam" },
+        "FRAME UPWS": { op: "2 orang", time: "16 jam" },
         "RENALPRO R-104": { op: "2 orang", time: "40 jam" },
         "RENALPRO R-404": { op: "2 orang", time: "40 jam" },
-        "WTP ZOOMBA": { op: "2 orang", time: "15 jam" },
+        "WTP ZOOMBA": { op: "2 orang", time: "24 jam" },
         "PANEL CONDUCTIVITY": { op: "1 orang", time: "4 jam" },
-        "PANEL SBR PIK": { op: "2 orang", time: "53 jam" },
-        "PANEL LIFT PUMP": { op: "1 orang", time: "24 jam" },
+        "PANEL SBR PIK": { op: "2 orang", time: "98 jam" },
+        "PANEL LIFT PUMP": { op: "1 orang", time: "28 jam" },
         "PANEL SISTEM STP": { op: "1 orang", time: "24 jam" },
         "PANEL SISTEM WTP": { op: "1 orang", time: "24 jam" },
         "PANEL SISTEM IPAL": { op: "1 orang", time: "24 jam" },
-        "PANEL UPWS": { op: "1 orang", time: "12 jam" },
         "HANDLE AQUATECH S.O AD 2.O AD": { op: "1 orang", time: "1 jam" },
         "HANDLE AQUATECH O.R 2.O AD": { op: "1 orang", time: "1 jam" },
         "HANDLE AQUATECH M.B 2.O MS": { op: "1 orang", time: "1 jam" },
-        "PRE FILTRATION MX": { op: "2 orang", time: "16 jam" },
+        "PRE FILTRATION MX": { op: "1 orang", time: "8 jam" },
         "Other": { op: "", time: "" }
     };
 
@@ -760,12 +800,10 @@
             // PRESENCE SYSTEM: STATUS ONLINE
             // ==========================================
             const statusRef = db.ref('operatorStatus/' + userObj.name);
-            // 1. Set status menjadi online saat operator berhasil masuk / membuka aplikasi
             statusRef.set({ 
                 status: "online", 
                 last_active: firebase.database.ServerValue.TIMESTAMP 
             });
-            // 2. Fungsi onDisconnect() dari Firebase: Otomatis ubah jadi offline jika tab ditutup, hp mati, atau hilang sinyal internet
             statusRef.onDisconnect().set({ 
                 status: "offline", 
                 last_active: firebase.database.ServerValue.TIMESTAMP 
@@ -821,7 +859,6 @@
             if(loggedInUser) {
                 const userObj = JSON.parse(loggedInUser);
                 const statusRef = db.ref('operatorStatus/' + userObj.name);
-                // Matikan deteksi onDisconnect karena kita akan set offline secara manual
                 statusRef.onDisconnect().cancel(); 
                 statusRef.set({ 
                     status: "offline", 
@@ -931,19 +968,16 @@
         const select = document.getElementById('kondisi_kerja');
         const currentValue = select.value;
 
-        // Bersihkan opsi dinamis sebelumnya
         Array.from(select.options).forEach(opt => { 
             if (opt.classList.contains('opt-dynamic')) select.removeChild(opt); 
         });
 
         let optionsToAdd = [];
 
-        // Opsi "Selesai Awal" muncul antara 08:00 - 15:59
         if (hours >= 8 && hours < 16) {
             optionsToAdd.push({ value: "Selesai Awal", text: "Pekerjaan Selesai Awal" });
         }
         
-        // Opsi lainnya muncul di atas 16:00
         if (hours >= 16) {
             optionsToAdd.push({ value: "Selesai Tepat Waktu", text: "Pekerjaan Selesai Tepat Waktu" });
             optionsToAdd.push({ value: "Lanjutkan Besok", text: "Lanjutkan Besok" });
@@ -951,25 +985,19 @@
             optionsToAdd.push({ value: "Lembur (Sabtu/Minggu) - 9 Jam", text: "Lembur (Sabtu/Minggu) - 9 Jam" });
         }
 
-        // Eksekusi penambahan opsi ke dalam elemen select
         optionsToAdd.forEach(eo => {
             const option = document.createElement('option');
             option.value = eo.value; 
             option.text = eo.text; 
-            option.classList.add('opt-dynamic'); // Tag khusus untuk dihapus saat refresh
+            option.classList.add('opt-dynamic');
             
             const otherOpt = select.querySelector('.opt-other');
             if (otherOpt) select.insertBefore(option, otherOpt);
             else select.appendChild(option);
         });
 
-        // Validasi pemilihan ulang
         let isOptionExists = Array.from(select.options).some(opt => opt.value === currentValue);
-        if (isOptionExists) {
-            select.value = currentValue;
-        } else {
-            select.value = "Idle Time";
-        }
+        if (isOptionExists) { select.value = currentValue; } else { select.value = "Idle Time"; }
         
         toggleManualOption(select, 'row_manual_kondisi', 'manual_kondisi');
     }
@@ -990,7 +1018,8 @@
         const userRole = localStorage.getItem('loggedInUserPTTT') ? JSON.parse(localStorage.getItem('loggedInUserPTTT')).role : "";
 
         items.forEach(item => {
-            let statusHtml = `<strong style="color:var(--warning);">${item.kondisi}</strong>`;
+            let statusHtml = `<strong style="color:var(--warning);">${item.kondisi || 'Tidak Diketahui'}</strong>`;
+            
             if (userRole === 'Developer') {
                 statusHtml += `<br>
                 <button class="btn-edit" onclick="openEditHistoryModal('${item.firebaseKey}')">EDIT</button>
@@ -1002,7 +1031,10 @@
             const tr = document.createElement("tr");
             tr.innerHTML = `
                 <td><strong style="color:var(--neon-cyan);">${item.formNo}</strong></td>
-                <td>${item.waktu}</td>
+                <td>
+                    <div style="font-size:11px; color:var(--text-muted)">Mulai: ${item.jamMulai || '-'}</div>
+                    <div>Selesai: ${item.waktu}</div>
+                </td>
                 <td>${item.operator}</td>
                 <td>${item.noSpp}</td>
                 <td>${item.namaProduk}</td>
@@ -1028,13 +1060,14 @@
     }
 
     // ==========================================
-    // DASHBOARD KPI (AUTO-DETECT JUMLAH PEKERJA BERDASARKAN ANTREAN TUGAS)
+    // DASHBOARD KPI (SISTEM ADIL: EVALUASI BERBASIS TIM)
     // ==========================================
     function renderKPIDashboard(data) {
         const tbody = document.getElementById("kpiTable").querySelector("tbody");
         tbody.innerHTML = "";
-        let sppWorkers = {}; 
         
+        // 1. Kumpulkan semua operator unik yang berkontribusi pada setiap No. SPP
+        let sppWorkers = {}; 
         for(let key in data) {
             let item = data[key];
             if(item.noSpp) {
@@ -1044,33 +1077,54 @@
         }
 
         let operatorStats = {};
+
+        // 2. Evaluasi setiap log yang menandakan pekerjaan selesai
         for(let key in data) {
             let item = data[key];
-            if(!item.kondisi) continue;
+            if(!item.kondisi || !item.noSpp) continue;
             
             let isCompleted = item.kondisi.includes("Selesai") || item.kondisi.includes("Lembur");
-            if(!operatorStats[item.operator]) operatorStats[item.operator] = { totalDone: 0, onTime: 0, early: 0, overtime: 0, totalScore: 0 };
 
             if(isCompleted) {
-                operatorStats[item.operator].totalDone++;
                 let baseScore = 0;
                 
-                if(item.kondisi === "Selesai Tepat Waktu") { operatorStats[item.operator].onTime++; baseScore = 100; }
-                else if(item.kondisi === "Selesai Awal") { operatorStats[item.operator].early++; baseScore = 110; } 
-                else if(item.kondisi.includes("Lembur")) { operatorStats[item.operator].overtime++; baseScore = 80; } 
-                else baseScore = 90; 
+                // Tentukan skor dasar penyelesaian
+                if(item.kondisi === "Selesai Tepat Waktu") { baseScore = 100; }
+                else if(item.kondisi === "Selesai Awal") { baseScore = 110; } 
+                else if(item.kondisi.includes("Lembur")) { baseScore = 80; } 
+                else { baseScore = 90; }
 
-                let actMP = sppWorkers[item.noSpp].size; 
-                let stdMP = item.stdManpower || 1; 
+                // Hitung penalti atau bonus manpower berdasarkan jumlah tim sebenarnya
+                let teamWorkers = sppWorkers[item.noSpp] || new Set([item.operator]);
+                let actMP = teamWorkers.size; 
+                let stdMP = parseInt(item.stdManpower) || 1; 
                 let penaltyManpower = 0;
 
-                if (actMP > stdMP) penaltyManpower = (actMP - stdMP) * 15;
-                else if (actMP < stdMP && actMP > 0) penaltyManpower = -10; 
+                if (actMP > stdMP) {
+                    penaltyManpower = (actMP - stdMP) * 15; // Penalti jika kelebihan orang
+                } else if (actMP < stdMP && actMP > 0) {
+                    penaltyManpower = -10; // Bonus hemat pekerja (+10 poin)
+                }
 
-                operatorStats[item.operator].totalScore += (baseScore - penaltyManpower);
+                let finalJobScore = baseScore - penaltyManpower;
+
+                // 3. SISTEM ADIL: Bagikan poin & statistik ke SEMUA operator di tim SPP tersebut
+                teamWorkers.forEach(op => {
+                    if(!operatorStats[op]) {
+                        operatorStats[op] = { totalDone: 0, onTime: 0, early: 0, overtime: 0, totalScore: 0 };
+                    }
+                    
+                    operatorStats[op].totalDone++;
+                    operatorStats[op].totalScore += finalJobScore;
+
+                    if(item.kondisi === "Selesai Tepat Waktu") operatorStats[op].onTime++;
+                    else if(item.kondisi === "Selesai Awal") operatorStats[op].early++;
+                    else if(item.kondisi.includes("Lembur")) operatorStats[op].overtime++;
+                });
             }
         }
 
+        // 4. Render hasil kalkulasi ke tabel KPI
         let hasData = false;
         for (let op in operatorStats) {
             let stats = operatorStats[op];
@@ -1078,7 +1132,6 @@
             hasData = true;
 
             let finalScore = stats.totalScore / stats.totalDone;
-            if(finalScore > 100) finalScore = 100; 
 
             let badgeClass = finalScore >= 90 ? "status-good" : (finalScore >= 75 ? "status-kpi" : "status-danger");
 
@@ -1094,7 +1147,9 @@
             tbody.appendChild(tr);
         }
 
-        if(!hasData) tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Belum ada data penyelesaian (Selesai/Lembur) untuk dinilai.</td></tr>`;
+        if(!hasData) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Belum ada data penyelesaian (Selesai/Lembur) untuk dinilai.</td></tr>`;
+        }
     }
 
     // ==========================================
@@ -1112,19 +1167,54 @@
             hasPending = true;
             
             let actionHtml = `<button type="button" class="btn-resume" onclick="resumeJob('${spp}')">LANJUTKAN</button>`;
-            if (userRole === 'Developer') { actionHtml += `<button type="button" class="btn-delete" onclick="deletePendingJob('${spp}')" style="margin-left:5px;">HAPUS</button>`; }
+            if (userRole === 'Developer') { 
+                actionHtml += `<br><button type="button" class="btn-edit" onclick="openEditPendingModal('${spp}')" style="margin-top:5px;">EDIT</button>`;
+                actionHtml += `<button type="button" class="btn-delete" onclick="deletePendingJob('${spp}')" style="margin-top:5px; margin-left:5px;">HAPUS</button>`; 
+            }
 
             const tr = document.createElement("tr");
             tr.innerHTML = `
-                <td><strong style="color:var(--neon-cyan)">${spp}</strong></td>
-                <td>${job.namaProduk}</td>
-                <td>${job.operator}</td>
-                <td><span class="status-badge status-danger">${job.status}</span></td>
+                <td><strong style="color:var(--neon-cyan)">${spp || '-'}</strong></td>
+                <td>${job.namaProduk || 'Tidak ada data'}</td>
+                <td>${job.operator || '-'}</td>
+                <td><span class="status-badge status-danger">${job.status || 'Menunggu'}</span></td>
                 <td>${actionHtml}</td>
             `;
             tbody.appendChild(tr);
         }
         if (hasPending) container.classList.remove("hidden"); else container.classList.add("hidden");
+    }
+    
+    // FUNGSI MODAL EDIT ANTREAN TERTUNDA
+    function openEditPendingModal(spp) {
+        const job = pendingJobs[spp];
+        document.getElementById('edit_pend_spp').value = spp;
+        document.getElementById('edit_pend_produk').value = job.namaProduk || "";
+        document.getElementById('edit_pend_operator').value = job.operator || "";
+        document.getElementById('edit_pend_status').value = job.status || "";
+        document.getElementById('editPendingModal').style.display = "block";
+    }
+
+    function closeEditPendingModal() { 
+        document.getElementById('editPendingModal').style.display = "none"; 
+    }
+
+    function submitEditPending(event) {
+        event.preventDefault();
+        const spp = document.getElementById('edit_pend_spp').value;
+        const newData = {
+            namaProduk: document.getElementById('edit_pend_produk').value,
+            operator: document.getElementById('edit_pend_operator').value,
+            status: document.getElementById('edit_pend_status').value
+        };
+        
+        if(pendingJobs[spp] && pendingJobs[spp].tahap) {
+            newData.tahap = pendingJobs[spp].tahap;
+        }
+
+        db.ref(`pendingJobs/${spp}`).update(newData)
+            .then(() => { alert("✅ Data antrean berhasil diubah!"); closeEditPendingModal(); })
+            .catch((error) => alert("❌ Gagal merubah database antrean: " + error.message));
     }
 
     function deletePendingJob(spp) {
@@ -1135,12 +1225,13 @@
         }
     }
 
+    // FUNGSI MODAL EDIT HISTORY
     function openEditHistoryModal(key) {
         const item = globalHistoryData[key];
         document.getElementById('edit_key').value = key;
         
-        // Load Form Info, Waktu, Operator
         document.getElementById('edit_formNo').value = item.formNo || "";
+        document.getElementById('edit_jamMulai').value = item.jamMulai || "";
         document.getElementById('edit_waktu').value = item.waktu || "";
         document.getElementById('edit_operator').value = item.operator || "";
 
@@ -1170,6 +1261,7 @@
         const key = document.getElementById('edit_key').value;
         const newData = {
             formNo: document.getElementById('edit_formNo').value,
+            jamMulai: document.getElementById('edit_jamMulai').value,
             waktu: document.getElementById('edit_waktu').value,
             operator: document.getElementById('edit_operator').value,
             noSpp: document.getElementById('edit_spp').value,
@@ -1180,8 +1272,25 @@
             alasan: document.getElementById('edit_alasan').value,
             uraian: document.getElementById('edit_uraian').value
         };
-        db.ref(`history/${key}`).update(newData)
-            .then(() => { alert("✅ Data berhasil diubah!"); closeEditHistoryModal(); })
+        
+        const promises = [ db.ref(`history/${key}`).update(newData) ];
+
+        if (newData.kondisi.includes("Selesai") || newData.kondisi.includes("Lembur")) {
+            promises.push(db.ref(`pendingJobs/${newData.noSpp}`).remove());
+        } else {
+            promises.push(db.ref(`pendingJobs/${newData.noSpp}`).set({
+                namaProduk: newData.namaProduk,
+                operator: newData.operator,
+                status: newData.kondisi,
+                tahap: globalHistoryData[key].tahapProduksi || "-"
+            }));
+        }
+
+        Promise.all(promises)
+            .then(() => { 
+                alert("✅ Data History & Tabel Antrean berhasil diperbarui otomatis!"); 
+                closeEditHistoryModal(); 
+            })
             .catch((error) => alert("❌ Gagal merubah database: " + error.message));
     }
 
@@ -1201,6 +1310,7 @@
         let current = new Date(startStr);
         let endDate = new Date(endStr);
         if (current >= endDate) return 0;
+        
         while (current < endDate) {
             let h = current.getHours();
             if (h !== 12 && h !== 16) totalMinutes++;
@@ -1212,10 +1322,18 @@
     async function saveToHistory(event) {
         event.preventDefault();
         const submitBtn = document.getElementById('btn-submit-form');
+        
+        const jamMulai = document.getElementById("jam_mulai").value;
+        const waktuUpdate = document.getElementById("waktu_update").value;
+
+        if (new Date(jamMulai) > new Date(waktuUpdate)) {
+            alert("❌ Validasi Gagal: Jam Mulai Pekerjaan tidak boleh lebih maju daripada waktu laporan (saat ini)!");
+            return;
+        }
+
         submitBtn.innerText = "MENGUNGGAH FOTO & MENYIMPAN..."; submitBtn.disabled = true;
 
         const operator = JSON.parse(localStorage.getItem('loggedInUserPTTT')).name;
-        const waktuUpdate = document.getElementById("waktu_update").value;
         const noSpp = document.getElementById("no_spp").value;
         const stdWaktu = document.getElementById("std_waktu").value;
         const uraian = document.getElementById("uraian_pekerjaan").value;
@@ -1261,37 +1379,28 @@
         let tracker;
 
         if (!spkTracking[noSpp]) {
-            let defaultStart = new Date(waktuUpdate); defaultStart.setHours(8, 0, 0, 0);
-            tracker = { target: targetHours, accumulatedUsed: 0, isFrozen: false, lastStart: defaultStart.toISOString() };
+            tracker = { target: targetHours, accumulatedUsed: 0 };
         } else {
             tracker = { ...spkTracking[noSpp] }; 
         }
 
-        let alertMessage = ""; let diffHours = 0;
-
-        if (tracker.isFrozen) {
-            alertMessage += `[SYS.LOG] Mengaktifkan ulang kalkulasi waktu dari status FREEZE.\n\n`;
-            tracker.isFrozen = false; tracker.lastStart = new Date(waktuUpdate).toISOString();
-        } else {
-            diffHours = calculateEffectiveHours(tracker.lastStart, waktuUpdate);
-            tracker.accumulatedUsed += diffHours;
-            if (statusButuhAlasan.includes(kondisi) && !kondisi.includes("Lembur")) {
-                tracker.isFrozen = true;
-                alertMessage += `[STATUS] ${kondisi}\nSistem menghentikan perhitungan waktu (FREEZE).\n\n`;
-            } else {
-                tracker.lastStart = new Date(waktuUpdate).toISOString();
-            }
-        }
+        // Kalkulasi waktu kerja berdasarkan input Jam Mulai user
+        let diffHours = calculateEffectiveHours(jamMulai, waktuUpdate);
+        tracker.accumulatedUsed += diffHours;
+        
+        let alertMessage = `[SYS.LOG] Durasi tugas terekam: ${diffHours.toFixed(1)} Jam.\n\n`;
         
         let waktuTerpakaiFinal = (tracker.accumulatedUsed || 0).toFixed(1);
         let waktuSisaFinal = (targetHours - tracker.accumulatedUsed).toFixed(1);
 
         const currentFormNo = getNextFormNumber();
-        const formattedDate = new Date(waktuUpdate).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).toUpperCase();
+        const formattedDateMulai = new Date(jamMulai).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).toUpperCase();
+        const formattedDateAkhir = new Date(waktuUpdate).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).toUpperCase();
         
         const promises = [db.ref('history').push().set({ 
             formNo: currentFormNo, 
-            waktu: formattedDate, 
+            jamMulai: formattedDateMulai,
+            waktu: formattedDateAkhir, 
             operator: operator, 
             noSpp: noSpp, 
             namaProduk: namaProduk, 
@@ -1306,10 +1415,12 @@
             stdManpower: stdManpower 
         })];
 
-        if (kondisi.includes("Selesai")) promises.push(db.ref(`pendingJobs/${noSpp}`).remove());
-        else promises.push(db.ref(`pendingJobs/${noSpp}`).set({ namaProduk: namaProduk, operator: operator, status: kondisi, tahap: tahapProduksi }));
+        if (kondisi.includes("Selesai") || kondisi.includes("Lembur")) {
+            promises.push(db.ref(`pendingJobs/${noSpp}`).remove());
+        } else {
+            promises.push(db.ref(`pendingJobs/${noSpp}`).set({ namaProduk: namaProduk, operator: operator, status: kondisi, tahap: tahapProduksi }));
+        }
 
-        // Push Tracking Waktu Terpakai
         promises.push(db.ref(`spkTracking/${noSpp}`).set(tracker));
 
         let counter = parseInt(localStorage.getItem('formCounterTT')) || 1;
@@ -1317,7 +1428,7 @@
 
         Promise.all(promises)
             .then(() => {
-                alert(alertMessage + "\n\n✅ Transmisi Data Sukses! Data & Foto telah tersimpan di cloud.");
+                alert(alertMessage + "✅ Transmisi Data Sukses! Data & Foto telah tersimpan di cloud.");
                 document.getElementById("no_spp").value = ""; 
                 document.getElementById("no_produksi").value = "";
                 document.getElementById("uraian_pekerjaan").value = ""; 
@@ -1326,7 +1437,7 @@
                 document.getElementById("row_manual_kategori").classList.add('hidden');
                 document.getElementById("row_manual_kondisi").classList.add('hidden');
                 document.getElementById("row_manual_tahap").classList.add('hidden');
-                updateTimeDisplay(); // reset visual
+                updateTimeDisplay(); 
             })
             .catch((error) => alert("❌ Transmisi Gagal: " + error.message))
             .finally(() => { submitBtn.innerText = "SUBMIT DATA PRODUKSI"; submitBtn.disabled = false; });
@@ -1354,7 +1465,16 @@
         
         const formattedRealTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}T${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
         const inputWaktu = document.getElementById('waktu_update');
-        if (inputWaktu && inputWaktu.value !== formattedRealTime) { inputWaktu.value = formattedRealTime; checkTimeLogic(); }
+        const inputMulai = document.getElementById('jam_mulai');
+
+        if (inputWaktu && inputWaktu.value !== formattedRealTime) { 
+            inputWaktu.value = formattedRealTime; checkTimeLogic(); 
+        }
+
+        // Set default value jam_mulai (otomatis ke 08:00 hari ini) jika operator belum memilih/kosong
+        if (inputMulai && !inputMulai.value) {
+            inputMulai.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}T08:00`;
+        }
     }
     
     setInterval(updateLiveClock, 1000); updateLiveClock();
