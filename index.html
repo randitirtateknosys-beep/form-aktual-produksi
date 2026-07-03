@@ -373,7 +373,7 @@
         <table class="form-table">
             <tr>
                 <td class="label-cell">No. SPP Aktif</td>
-                <td class="input-cell"><input type="text" class="form-control" name="no_spp" id="no_spp" placeholder="Scan/Input No. SPP" required></td>
+                <td class="input-cell"><input type="text" class="form-control" name="no_spp" id="no_spp" placeholder="Scan/Input No. SPP (Contoh: SPP-001)" required></td>
             </tr>
             
             <tr>
@@ -583,13 +583,9 @@
                         <th>Kode Form</th>
                         <th>Jam Mulai - Selesai</th>
                         <th>Operator</th>
-                        <th>ID SPP</th>
-                        <th>Parameter Produk</th>
-                        <th>Kategori</th>
-                        <th>Target Waktu</th>
-                        <th>Total Dikerjakan</th>
-                        <th>Sisa Waktu</th>
-                        <th>Status</th>
+                        <th>Durasi SPP Aktual</th>
+                        <th>Sisa Waktu Target</th>
+                        <th>Status Kerja</th>
                         <th>Catatan Khusus</th>
                         <th>Uraian Pekerjaan</th>
                         <th>Visual</th>
@@ -796,19 +792,10 @@
             const userObj = JSON.parse(loggedInUser);
             document.getElementById('header_operator_name').innerHTML = `[OPR: <strong>${userObj.name}</strong>]`;
             
-            // ==========================================
-            // PRESENCE SYSTEM: STATUS ONLINE
-            // ==========================================
+            // PRESENCE SYSTEM
             const statusRef = db.ref('operatorStatus/' + userObj.name);
-            statusRef.set({ 
-                status: "online", 
-                last_active: firebase.database.ServerValue.TIMESTAMP 
-            });
-            statusRef.onDisconnect().set({ 
-                status: "offline", 
-                last_active: firebase.database.ServerValue.TIMESTAMP 
-            });
-            // ==========================================
+            statusRef.set({ status: "online", last_active: firebase.database.ServerValue.TIMESTAMP });
+            statusRef.onDisconnect().set({ status: "offline", last_active: firebase.database.ServerValue.TIMESTAMP });
 
             if(userObj.role === 'Developer') {
                 document.getElementById('kpiDashboardContainer').classList.remove('hidden');
@@ -851,22 +838,13 @@
 
     function handleLogout() {
         if(confirm("Selesaikan sesi kerja dan logout?")) {
-            
-            // ==========================================
-            // PRESENCE SYSTEM: STATUS OFFLINE MANUAL SAAT LOGOUT
-            // ==========================================
             const loggedInUser = localStorage.getItem('loggedInUserPTTT');
             if(loggedInUser) {
                 const userObj = JSON.parse(loggedInUser);
                 const statusRef = db.ref('operatorStatus/' + userObj.name);
                 statusRef.onDisconnect().cancel(); 
-                statusRef.set({ 
-                    status: "offline", 
-                    last_active: firebase.database.ServerValue.TIMESTAMP 
-                });
+                statusRef.set({ status: "offline", last_active: firebase.database.ServerValue.TIMESTAMP });
             }
-            // ==========================================
-
             localStorage.removeItem('loggedInUserPTTT');
             document.getElementById('login_password').value = "";
             checkLoginStatus();
@@ -919,15 +897,17 @@
     }
 
     function updateTimeDisplay() {
-        const spp = document.getElementById('no_spp').value;
+        let sppOriginal = document.getElementById('no_spp').value.trim();
+        let safeSpp = sppOriginal.replace(/[\.\#\$\/\[\]]/g, "_"); // Mencegah crash pembacaan key SPP
+        
         const terpakaiInput = document.getElementById('waktu_terpakai');
         const sisaInput = document.getElementById('waktu_sisa');
         const stdWaktuStr = document.getElementById('std_waktu').value;
         
         let target = parseInt(stdWaktuStr) || 0;
 
-        if (spp && spkTracking[spp]) {
-            let terpakai = spkTracking[spp].accumulatedUsed || 0;
+        if (safeSpp && spkTracking[safeSpp]) {
+            let terpakai = parseFloat(spkTracking[safeSpp].accumulatedUsed) || 0;
             terpakaiInput.value = terpakai.toFixed(1);
             let sisa = target - terpakai;
             sisaInput.value = sisa.toFixed(1);
@@ -1003,6 +983,15 @@
     }
 
     // ==========================================
+    // MENCEGAH NaN PADA PARSING TANGGAL SORTING
+    // ==========================================
+    function getValidTime(dateStr) {
+        if (!dateStr) return 0;
+        let t = new Date(dateStr).getTime();
+        return isNaN(t) ? 0 : t;
+    }
+
+    // ==========================================
     // RENDERING & PENGHAPUSAN HISTORI
     // ==========================================
     function renderHistoryTable(data) {
@@ -1013,41 +1002,79 @@
         for (let id in data) {
             let item = data[id]; item.firebaseKey = id; items.push(item);
         }
-        items.sort((a, b) => b.formNo.localeCompare(a.formNo));
+        
+        // KELOMPOKKAN BERDASARKAN NO. SPP
+        let groupedData = {};
+        items.forEach(item => {
+            let spp = item.noSpp ? String(item.noSpp) : 'Tanpa SPP';
+            if (!groupedData[spp]) groupedData[spp] = [];
+            groupedData[spp].push(item);
+        });
+
+        // URUTKAN SPP (SPP dengan aktivitas terbaru tampil paling atas) - DIPERBAIKI AGAR BEBAS NaN
+        let sortedSpps = Object.keys(groupedData).sort((a, b) => {
+            let latestA = Math.max(...groupedData[a].map(i => getValidTime(i.waktu)));
+            let latestB = Math.max(...groupedData[b].map(i => getValidTime(i.waktu)));
+            return latestB - latestA;
+        });
 
         const userRole = localStorage.getItem('loggedInUserPTTT') ? JSON.parse(localStorage.getItem('loggedInUserPTTT')).role : "";
 
-        items.forEach(item => {
-            let statusHtml = `<strong style="color:var(--warning);">${item.kondisi || 'Tidak Diketahui'}</strong>`;
+        sortedSpps.forEach(spp => {
+            let group = groupedData[spp];
             
-            if (userRole === 'Developer') {
-                statusHtml += `<br>
-                <button class="btn-edit" onclick="openEditHistoryModal('${item.firebaseKey}')">EDIT</button>
-                <button class="btn-delete" onclick="deleteHistoryItem('${item.firebaseKey}')">HAPUS</button>`;
-            }
+            // Urutkan histori di dalam SPP (Paling baru ke paling lama)
+            group.sort((a, b) => getValidTime(b.waktu) - getValidTime(a.waktu));
+            let sppInfo = group[0]; 
             
-            let colorSisa = parseFloat(item.waktuSisa) < 0 ? 'var(--danger)' : 'var(--success)';
-
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td><strong style="color:var(--neon-cyan);">${item.formNo}</strong></td>
-                <td>
-                    <div style="font-size:11px; color:var(--text-muted)">Mulai: ${item.jamMulai || '-'}</div>
-                    <div>Selesai: ${item.waktu}</div>
+            let groupTr = document.createElement("tr");
+            groupTr.style.backgroundColor = "#e0f2fe"; 
+            groupTr.innerHTML = `
+                <td colspan="9" style="padding: 12px 15px; border: 1px solid #bae6fd;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                        <div>
+                            <span style="font-size: 15px; font-weight: 700; color: var(--neon-blue);">📁 NO. SPP: ${spp}</span>
+                            <span style="margin-left: 15px; font-weight: 600; color: var(--text-main);">🛒 Produk: ${sppInfo.namaProduk || 'N/A'}</span>
+                            <span class="status-badge status-good" style="margin-left: 10px;">${sppInfo.kategori || 'Reguler'}</span>
+                        </div>
+                        <div style="font-weight: 600; color: var(--neon-cyan);">
+                            ⏱️ Target Standar Waktu: ${sppInfo.stdWaktu || '0'} Jam
+                        </div>
+                    </div>
                 </td>
-                <td>${item.operator}</td>
-                <td>${item.noSpp}</td>
-                <td>${item.namaProduk}</td>
-                <td><span class="status-badge status-good">${item.kategori || 'Reguler'}</span></td>
-                <td>${item.stdWaktu}</td>
-                <td><strong style="color:var(--warning);">${item.waktuTerpakai || '0.0'} Jam</strong></td>
-                <td><strong style="color:${colorSisa};">${item.waktuSisa || item.stdWaktu || '0.0'} Jam</strong></td>
-                <td>${statusHtml}</td>
-                <td>${item.alasan}</td>
-                <td>${item.uraian}</td>
-                <td><span style="color:var(--text-muted); font-size:11px;">[${item.foto}]</span></td>
             `;
-            tbody.appendChild(tr);
+            tbody.appendChild(groupTr);
+
+            group.forEach(item => {
+                let statusHtml = `<strong style="color:var(--warning);">${item.kondisi || 'Tidak Diketahui'}</strong>`;
+                if (userRole === 'Developer') {
+                    statusHtml += `<br>
+                    <button class="btn-edit" onclick="openEditHistoryModal('${item.firebaseKey}')">EDIT</button>
+                    <button class="btn-delete" onclick="deleteHistoryItem('${item.firebaseKey}')">HAPUS</button>`;
+                }
+                
+                let colorSisa = parseFloat(item.waktuSisa) < 0 ? 'var(--danger)' : 'var(--success)';
+
+                const tr = document.createElement("tr");
+                tr.setAttribute('data-spp', String(spp).toLowerCase());
+                tr.setAttribute('data-search', `${item.formNo || ''} ${item.operator || ''} ${spp} ${item.namaProduk || ''} ${item.kondisi || ''} ${item.uraian || ''}`.toLowerCase());
+
+                tr.innerHTML = `
+                    <td><strong style="color:var(--neon-cyan);">${item.formNo}</strong></td>
+                    <td>
+                        <div style="font-size:11px; color:var(--text-muted)">Mulai: ${item.jamMulai || '-'}</div>
+                        <div style="font-weight: 600; font-size:12px;">Akhir: ${item.waktu}</div>
+                    </td>
+                    <td><strong style="color: var(--text-main);">${item.operator}</strong></td>
+                    <td><strong style="color:var(--warning);">${item.waktuTerpakai || '0.0'} Jam</strong></td>
+                    <td><strong style="color:${colorSisa};">${item.waktuSisa || item.stdWaktu || '0.0'} Jam</strong></td>
+                    <td>${statusHtml}</td>
+                    <td style="white-space: normal; min-width: 150px;">${item.alasan}</td>
+                    <td style="white-space: normal; min-width: 200px;">${item.uraian}</td>
+                    <td><span style="color:var(--text-muted); font-size:11px;">[${item.foto}]</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
         });
     }
 
@@ -1060,60 +1087,53 @@
     }
 
     // ==========================================
-    // DASHBOARD KPI (SISTEM ADIL: EVALUASI BERBASIS TIM)
+    // DASHBOARD KPI 
     // ==========================================
     function renderKPIDashboard(data) {
         const tbody = document.getElementById("kpiTable").querySelector("tbody");
         tbody.innerHTML = "";
         
-        // 1. Kumpulkan semua operator unik yang berkontribusi pada setiap No. SPP
         let sppWorkers = {}; 
         for(let key in data) {
             let item = data[key];
             if(item.noSpp) {
-                if(!sppWorkers[item.noSpp]) sppWorkers[item.noSpp] = new Set();
-                sppWorkers[item.noSpp].add(item.operator); 
+                let sSpp = String(item.noSpp);
+                if(!sppWorkers[sSpp]) sppWorkers[sSpp] = new Set();
+                sppWorkers[sSpp].add(item.operator); 
             }
         }
 
         let operatorStats = {};
 
-        // 2. Evaluasi setiap log yang menandakan pekerjaan selesai
         for(let key in data) {
             let item = data[key];
             if(!item.kondisi || !item.noSpp) continue;
+            let sSpp = String(item.noSpp);
             
             let isCompleted = item.kondisi.includes("Selesai") || item.kondisi.includes("Lembur");
 
             if(isCompleted) {
                 let baseScore = 0;
                 
-                // Tentukan skor dasar penyelesaian
                 if(item.kondisi === "Selesai Tepat Waktu") { baseScore = 100; }
                 else if(item.kondisi === "Selesai Awal") { baseScore = 110; } 
                 else if(item.kondisi.includes("Lembur")) { baseScore = 80; } 
                 else { baseScore = 90; }
 
-                // Hitung penalti atau bonus manpower berdasarkan jumlah tim sebenarnya
-                let teamWorkers = sppWorkers[item.noSpp] || new Set([item.operator]);
+                let teamWorkers = sppWorkers[sSpp] || new Set([item.operator]);
                 let actMP = teamWorkers.size; 
                 let stdMP = parseInt(item.stdManpower) || 1; 
                 let penaltyManpower = 0;
 
-                if (actMP > stdMP) {
-                    penaltyManpower = (actMP - stdMP) * 15; // Penalti jika kelebihan orang
-                } else if (actMP < stdMP && actMP > 0) {
-                    penaltyManpower = -10; // Bonus hemat pekerja (+10 poin)
-                }
+                if (actMP > stdMP) { penaltyManpower = (actMP - stdMP) * 15; } 
+                else if (actMP < stdMP && actMP > 0) { penaltyManpower = -10; }
 
                 let finalJobScore = baseScore - penaltyManpower;
 
-                // 3. SISTEM ADIL: Bagikan poin & statistik ke SEMUA operator di tim SPP tersebut
                 teamWorkers.forEach(op => {
                     if(!operatorStats[op]) {
                         operatorStats[op] = { totalDone: 0, onTime: 0, early: 0, overtime: 0, totalScore: 0 };
                     }
-                    
                     operatorStats[op].totalDone++;
                     operatorStats[op].totalScore += finalJobScore;
 
@@ -1124,7 +1144,6 @@
             }
         }
 
-        // 4. Render hasil kalkulasi ke tabel KPI
         let hasData = false;
         for (let op in operatorStats) {
             let stats = operatorStats[op];
@@ -1132,7 +1151,6 @@
             hasData = true;
 
             let finalScore = stats.totalScore / stats.totalDone;
-
             let badgeClass = finalScore >= 90 ? "status-good" : (finalScore >= 75 ? "status-kpi" : "status-danger");
 
             const tr = document.createElement("tr");
@@ -1153,7 +1171,7 @@
     }
 
     // ==========================================
-    // PENDING JOBS & LAINNYA
+    // PENDING JOBS 
     // ==========================================
     function renderPendingJobs() {
         const tbody = document.getElementById("pendingTable").querySelector("tbody");
@@ -1162,19 +1180,22 @@
         let hasPending = false;
         let userRole = localStorage.getItem('loggedInUserPTTT') ? JSON.parse(localStorage.getItem('loggedInUserPTTT')).role : "";
 
-        for (let spp in pendingJobs) {
-            const job = pendingJobs[spp];
+        for (let safeSpp in pendingJobs) {
+            const job = pendingJobs[safeSpp];
             hasPending = true;
             
-            let actionHtml = `<button type="button" class="btn-resume" onclick="resumeJob('${spp}')">LANJUTKAN</button>`;
+            // Tampilkan noSpp asli jika ada, kalau tidak ada tampilkan yang dari safe key
+            let displaySpp = job.originalSpp || safeSpp;
+
+            let actionHtml = `<button type="button" class="btn-resume" onclick="resumeJob('${safeSpp}')">LANJUTKAN</button>`;
             if (userRole === 'Developer') { 
-                actionHtml += `<br><button type="button" class="btn-edit" onclick="openEditPendingModal('${spp}')" style="margin-top:5px;">EDIT</button>`;
-                actionHtml += `<button type="button" class="btn-delete" onclick="deletePendingJob('${spp}')" style="margin-top:5px; margin-left:5px;">HAPUS</button>`; 
+                actionHtml += `<br><button type="button" class="btn-edit" onclick="openEditPendingModal('${safeSpp}')" style="margin-top:5px;">EDIT</button>`;
+                actionHtml += `<button type="button" class="btn-delete" onclick="deletePendingJob('${safeSpp}')" style="margin-top:5px; margin-left:5px;">HAPUS</button>`; 
             }
 
             const tr = document.createElement("tr");
             tr.innerHTML = `
-                <td><strong style="color:var(--neon-cyan)">${spp || '-'}</strong></td>
+                <td><strong style="color:var(--neon-cyan)">${displaySpp}</strong></td>
                 <td>${job.namaProduk || 'Tidak ada data'}</td>
                 <td>${job.operator || '-'}</td>
                 <td><span class="status-badge status-danger">${job.status || 'Menunggu'}</span></td>
@@ -1185,47 +1206,41 @@
         if (hasPending) container.classList.remove("hidden"); else container.classList.add("hidden");
     }
     
-    // FUNGSI MODAL EDIT ANTREAN TERTUNDA
-    function openEditPendingModal(spp) {
-        const job = pendingJobs[spp];
-        document.getElementById('edit_pend_spp').value = spp;
+    function openEditPendingModal(safeSpp) {
+        const job = pendingJobs[safeSpp];
+        document.getElementById('edit_pend_spp').value = safeSpp;
         document.getElementById('edit_pend_produk').value = job.namaProduk || "";
         document.getElementById('edit_pend_operator').value = job.operator || "";
         document.getElementById('edit_pend_status').value = job.status || "";
         document.getElementById('editPendingModal').style.display = "block";
     }
 
-    function closeEditPendingModal() { 
-        document.getElementById('editPendingModal').style.display = "none"; 
-    }
+    function closeEditPendingModal() { document.getElementById('editPendingModal').style.display = "none"; }
 
     function submitEditPending(event) {
         event.preventDefault();
-        const spp = document.getElementById('edit_pend_spp').value;
+        const safeSpp = document.getElementById('edit_pend_spp').value;
         const newData = {
             namaProduk: document.getElementById('edit_pend_produk').value,
             operator: document.getElementById('edit_pend_operator').value,
             status: document.getElementById('edit_pend_status').value
         };
-        
-        if(pendingJobs[spp] && pendingJobs[spp].tahap) {
-            newData.tahap = pendingJobs[spp].tahap;
-        }
+        if(pendingJobs[safeSpp] && pendingJobs[safeSpp].tahap) newData.tahap = pendingJobs[safeSpp].tahap;
+        if(pendingJobs[safeSpp] && pendingJobs[safeSpp].originalSpp) newData.originalSpp = pendingJobs[safeSpp].originalSpp;
 
-        db.ref(`pendingJobs/${spp}`).update(newData)
+        db.ref(`pendingJobs/${safeSpp}`).update(newData)
             .then(() => { alert("✅ Data antrean berhasil diubah!"); closeEditPendingModal(); })
             .catch((error) => alert("❌ Gagal merubah database antrean: " + error.message));
     }
 
-    function deletePendingJob(spp) {
-        if(confirm(`Peringatan (Khusus Developer): Anda yakin ingin menghapus SPP "${spp}" dari antrean tertunda secara permanen?`)) {
-            db.ref(`pendingJobs/${spp}`).remove()
+    function deletePendingJob(safeSpp) {
+        if(confirm(`Peringatan (Khusus Developer): Anda yakin ingin menghapus antrean tertunda ini secara permanen?`)) {
+            db.ref(`pendingJobs/${safeSpp}`).remove()
                 .then(() => alert("✅ Antrean berhasil dihapus dari cloud!"))
                 .catch((err) => alert("❌ Gagal menghapus: " + err.message));
         }
     }
 
-    // FUNGSI MODAL EDIT HISTORY
     function openEditHistoryModal(key) {
         const item = globalHistoryData[key];
         document.getElementById('edit_key').value = key;
@@ -1234,7 +1249,6 @@
         document.getElementById('edit_jamMulai').value = item.jamMulai || "";
         document.getElementById('edit_waktu').value = item.waktu || "";
         document.getElementById('edit_operator').value = item.operator || "";
-
         document.getElementById('edit_spp').value = item.noSpp || "";
         document.getElementById('edit_produk').value = item.namaProduk || "";
         
@@ -1273,12 +1287,15 @@
             uraian: document.getElementById('edit_uraian').value
         };
         
+        let safeSpp = newData.noSpp.replace(/[\.\#\$\/\[\]]/g, "_");
+
         const promises = [ db.ref(`history/${key}`).update(newData) ];
 
         if (newData.kondisi.includes("Selesai") || newData.kondisi.includes("Lembur")) {
-            promises.push(db.ref(`pendingJobs/${newData.noSpp}`).remove());
+            promises.push(db.ref(`pendingJobs/${safeSpp}`).remove());
         } else {
-            promises.push(db.ref(`pendingJobs/${newData.noSpp}`).set({
+            promises.push(db.ref(`pendingJobs/${safeSpp}`).set({
+                originalSpp: newData.noSpp,
                 namaProduk: newData.namaProduk,
                 operator: newData.operator,
                 status: newData.kondisi,
@@ -1294,9 +1311,9 @@
             .catch((error) => alert("❌ Gagal merubah database: " + error.message));
     }
 
-    function resumeJob(spp) {
-        const job = pendingJobs[spp]; if(!job) return;
-        document.getElementById("no_spp").value = spp;
+    function resumeJob(safeSpp) {
+        const job = pendingJobs[safeSpp]; if(!job) return;
+        document.getElementById("no_spp").value = job.originalSpp || safeSpp;
         const produkSelect = document.getElementById("nama_produk");
         let isOther = true;
         for (let i = 0; i < produkSelect.options.length; i++) { if (produkSelect.options[i].value === job.namaProduk) { produkSelect.selectedIndex = i; isOther = false; break; } }
@@ -1309,6 +1326,8 @@
         let totalMinutes = 0;
         let current = new Date(startStr);
         let endDate = new Date(endStr);
+        
+        if (isNaN(current.getTime()) || isNaN(endDate.getTime())) return 0;
         if (current >= endDate) return 0;
         
         while (current < endDate) {
@@ -1319,137 +1338,172 @@
         return totalMinutes / 60;
     }
 
+    // ==========================================
+    // FUNGSI SUBMIT (DIPERBAIKI 100% BEBAS CRASH)
+    // ==========================================
     async function saveToHistory(event) {
         event.preventDefault();
         const submitBtn = document.getElementById('btn-submit-form');
         
-        const jamMulai = document.getElementById("jam_mulai").value;
-        const waktuUpdate = document.getElementById("waktu_update").value;
+        try {
+            const jamMulai = document.getElementById("jam_mulai").value;
+            const waktuUpdate = document.getElementById("waktu_update").value;
 
-        if (new Date(jamMulai) > new Date(waktuUpdate)) {
-            alert("❌ Validasi Gagal: Jam Mulai Pekerjaan tidak boleh lebih maju daripada waktu laporan (saat ini)!");
-            return;
-        }
-
-        submitBtn.innerText = "MENGUNGGAH FOTO & MENYIMPAN..."; submitBtn.disabled = true;
-
-        const operator = JSON.parse(localStorage.getItem('loggedInUserPTTT')).name;
-        const noSpp = document.getElementById("no_spp").value;
-        const stdWaktu = document.getElementById("std_waktu").value;
-        const uraian = document.getElementById("uraian_pekerjaan").value;
-        
-        let namaProduk = document.getElementById("nama_produk").value; if(namaProduk === "Other") namaProduk = document.getElementById("manual_nama_produk").value;
-        let kategori = document.getElementById("kategori_pekerjaan").value; if(kategori === "Other") kategori = document.getElementById("manual_kategori").value;
-        let kondisi = document.getElementById("kondisi_kerja").value; if(kondisi === "Other") kondisi = document.getElementById("manual_kondisi").value;
-        let tahapProduksi = document.getElementById("tahap_produksi").value; if(tahapProduksi === "Other") tahapProduksi = document.getElementById("manual_tahap").value;
-
-        const stdOpString = document.getElementById("std_operator").value || "";
-        const stdManpower = parseInt(stdOpString) || 1; 
-
-        const statusButuhAlasan = ["Idle Time", "Stoppage", "Takeover", "Lanjutkan Besok", "Lembur (Reguler) - 4 Jam", "Lembur (Sabtu/Minggu) - 9 Jam"];
-        let alasanKondisi = "-";
-
-        if (statusButuhAlasan.includes(kondisi)) {
-            alasanKondisi = prompt(`Input justifikasi status pekerjaan "${kondisi}":`);
-            if (alasanKondisi === null || alasanKondisi.trim() === "") {
-                alert("Proses digagalkan: Justifikasi wajib diisi.");
-                submitBtn.innerText = "SUBMIT DATA PRODUKSI"; submitBtn.disabled = false; return;
+            if (new Date(jamMulai) > new Date(waktuUpdate)) {
+                alert("❌ Validasi Gagal: Jam Mulai Pekerjaan tidak boleh lebih maju daripada waktu laporan (saat ini)!");
+                return;
             }
-        }
 
-        const fileInput = document.getElementById('foto_aktual');
-        let fotoName = "TIDAK ADA";
+            const noSppOriginal = document.getElementById("no_spp").value.trim();
+            if(!noSppOriginal) { alert("❌ Nomor SPP harus diisi!"); return; }
+            
+            // Konversi No SPP menjadi safe key untuk database (menghindari error path Firebase)
+            const safeSpp = noSppOriginal.replace(/[\.\#\$\/\[\]]/g, "_");
 
-        if (fileInput.files.length > 0) {
-            try {
+            submitBtn.innerText = "MENGUNGGAH FOTO & MENYIMPAN..."; 
+            submitBtn.disabled = true;
+
+            const operator = JSON.parse(localStorage.getItem('loggedInUserPTTT')).name;
+            const stdWaktu = document.getElementById("std_waktu").value;
+            const uraian = document.getElementById("uraian_pekerjaan").value;
+            
+            let namaProduk = document.getElementById("nama_produk").value; if(namaProduk === "Other") namaProduk = document.getElementById("manual_nama_produk").value;
+            let kategori = document.getElementById("kategori_pekerjaan").value; if(kategori === "Other") kategori = document.getElementById("manual_kategori").value;
+            let kondisi = document.getElementById("kondisi_kerja").value; if(kondisi === "Other") kondisi = document.getElementById("manual_kondisi").value;
+            let tahapProduksi = document.getElementById("tahap_produksi").value; if(tahapProduksi === "Other") tahapProduksi = document.getElementById("manual_tahap").value;
+
+            const stdOpString = document.getElementById("std_operator").value || "1";
+            const stdManpower = parseInt(stdOpString) || 1; 
+
+            const statusButuhAlasan = ["Idle Time", "Stoppage", "Takeover", "Lanjutkan Besok", "Lembur (Reguler) - 4 Jam", "Lembur (Sabtu/Minggu) - 9 Jam"];
+            let alasanKondisi = "-";
+
+            if (statusButuhAlasan.includes(kondisi)) {
+                alasanKondisi = prompt(`Input justifikasi status pekerjaan "${kondisi}":`);
+                if (alasanKondisi === null || alasanKondisi.trim() === "") {
+                    alert("Proses digagalkan: Justifikasi wajib diisi.");
+                    submitBtn.innerText = "SUBMIT DATA PRODUKSI"; submitBtn.disabled = false; return;
+                }
+            }
+
+            const fileInput = document.getElementById('foto_aktual');
+            let fotoName = "TIDAK ADA";
+
+            if (fileInput.files.length > 0) {
                 const filesBase64 = [];
                 for(let i=0; i < fileInput.files.length; i++) filesBase64.push(await getBase64(fileInput.files[i]));
                 const scriptUrl = "https://script.google.com/macros/s/AKfycbxFe4vFwYNtVJ7pOIM8XiCaYfsdyMBthuPGhZpjTVF52K2ESGi2741RraFoq4TRmtyQ0g/exec"; 
                 const response = await fetch(scriptUrl, { method: "POST", body: JSON.stringify({ files: filesBase64 }), headers: { "Content-Type": "text/plain;charset=utf-8" }});
                 const result = await response.json();
-                if(result.status === "success") fotoName = result.files.map(f => `<a href="${f.url}" target="_blank" style="color:var(--neon-cyan); text-decoration:underline; display:block;">${f.name}</a>`).join('');
-                else throw new Error(result.message);
-            } catch(e) {
-                alert("Gagal mengunggah foto ke Google Drive: " + e.message);
-                submitBtn.innerText = "SUBMIT DATA PRODUKSI"; submitBtn.disabled = false; return;
+                if(result.status === "success") {
+                    fotoName = result.files.map(f => `<a href="${f.url}" target="_blank" style="color:var(--neon-cyan); text-decoration:underline; display:block;">${f.name}</a>`).join('');
+                } else {
+                    throw new Error(result.message);
+                }
             }
+
+            let targetHours = parseInt(stdWaktu) || 0;
+            let tracker = spkTracking[safeSpp] ? { ...spkTracking[safeSpp] } : { target: targetHours, accumulatedUsed: 0 };
+            
+            let diffHours = calculateEffectiveHours(jamMulai, waktuUpdate);
+            
+            // Pencegahan error NaN pada akumulasi tracker
+            tracker.accumulatedUsed = (parseFloat(tracker.accumulatedUsed) || 0) + (parseFloat(diffHours) || 0);
+            
+            let alertMessage = `[SYS.LOG] Durasi tugas terekam: ${diffHours.toFixed(1)} Jam.\n\n`;
+            
+            let waktuTerpakaiFinal = tracker.accumulatedUsed.toFixed(1);
+            let waktuSisaFinal = (targetHours - tracker.accumulatedUsed).toFixed(1);
+
+            const currentFormNo = getNextFormNumber();
+            const formattedDateMulai = new Date(jamMulai).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).toUpperCase();
+            const formattedDateAkhir = new Date(waktuUpdate).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).toUpperCase();
+            
+            const promises = [db.ref('history').push().set({ 
+                formNo: currentFormNo, 
+                jamMulai: formattedDateMulai,
+                waktu: formattedDateAkhir, 
+                operator: operator, 
+                noSpp: noSppOriginal, // Tetap simpan dengan format aslinya
+                namaProduk: namaProduk, 
+                kategori: kategori, 
+                stdWaktu: stdWaktu, 
+                waktuTerpakai: waktuTerpakaiFinal,
+                waktuSisa: waktuSisaFinal,
+                kondisi: kondisi, 
+                alasan: alasanKondisi, 
+                uraian: uraian, 
+                foto: fotoName, 
+                stdManpower: stdManpower 
+            })];
+
+            if (kondisi.includes("Selesai") || kondisi.includes("Lembur")) {
+                promises.push(db.ref(`pendingJobs/${safeSpp}`).remove());
+            } else {
+                promises.push(db.ref(`pendingJobs/${safeSpp}`).set({ 
+                    originalSpp: noSppOriginal,
+                    namaProduk: namaProduk, 
+                    operator: operator, 
+                    status: kondisi, 
+                    tahap: tahapProduksi 
+                }));
+            }
+
+            promises.push(db.ref(`spkTracking/${safeSpp}`).set(tracker));
+
+            let counter = parseInt(localStorage.getItem('formCounterTT')) || 1;
+            promises.push(db.ref('config/formCounter').set(counter + 1));
+
+            await Promise.all(promises);
+            
+            alert(alertMessage + "✅ Transmisi Data Sukses! Data & Foto telah tersimpan di cloud.");
+            document.getElementById("no_spp").value = ""; 
+            document.getElementById("no_produksi").value = "";
+            document.getElementById("uraian_pekerjaan").value = ""; 
+            document.getElementById("foto_aktual").value = "";
+            document.getElementById("row_manual_produk").classList.add('hidden');
+            document.getElementById("row_manual_kategori").classList.add('hidden');
+            document.getElementById("row_manual_kondisi").classList.add('hidden');
+            document.getElementById("row_manual_tahap").classList.add('hidden');
+            updateTimeDisplay(); 
+
+        } catch (error) {
+            alert("❌ Transmisi Gagal (Log: " + error.message + "). Pastikan koneksi internet stabil.");
+        } finally {
+            submitBtn.innerText = "SUBMIT DATA PRODUKSI"; 
+            submitBtn.disabled = false;
         }
-
-        let targetHours = parseInt(stdWaktu) || 0;
-        let tracker;
-
-        if (!spkTracking[noSpp]) {
-            tracker = { target: targetHours, accumulatedUsed: 0 };
-        } else {
-            tracker = { ...spkTracking[noSpp] }; 
-        }
-
-        // Kalkulasi waktu kerja berdasarkan input Jam Mulai user
-        let diffHours = calculateEffectiveHours(jamMulai, waktuUpdate);
-        tracker.accumulatedUsed += diffHours;
-        
-        let alertMessage = `[SYS.LOG] Durasi tugas terekam: ${diffHours.toFixed(1)} Jam.\n\n`;
-        
-        let waktuTerpakaiFinal = (tracker.accumulatedUsed || 0).toFixed(1);
-        let waktuSisaFinal = (targetHours - tracker.accumulatedUsed).toFixed(1);
-
-        const currentFormNo = getNextFormNumber();
-        const formattedDateMulai = new Date(jamMulai).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).toUpperCase();
-        const formattedDateAkhir = new Date(waktuUpdate).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).toUpperCase();
-        
-        const promises = [db.ref('history').push().set({ 
-            formNo: currentFormNo, 
-            jamMulai: formattedDateMulai,
-            waktu: formattedDateAkhir, 
-            operator: operator, 
-            noSpp: noSpp, 
-            namaProduk: namaProduk, 
-            kategori: kategori, 
-            stdWaktu: stdWaktu, 
-            waktuTerpakai: waktuTerpakaiFinal,
-            waktuSisa: waktuSisaFinal,
-            kondisi: kondisi, 
-            alasan: alasanKondisi, 
-            uraian: uraian, 
-            foto: fotoName, 
-            stdManpower: stdManpower 
-        })];
-
-        if (kondisi.includes("Selesai") || kondisi.includes("Lembur")) {
-            promises.push(db.ref(`pendingJobs/${noSpp}`).remove());
-        } else {
-            promises.push(db.ref(`pendingJobs/${noSpp}`).set({ namaProduk: namaProduk, operator: operator, status: kondisi, tahap: tahapProduksi }));
-        }
-
-        promises.push(db.ref(`spkTracking/${noSpp}`).set(tracker));
-
-        let counter = parseInt(localStorage.getItem('formCounterTT')) || 1;
-        promises.push(db.ref('config/formCounter').set(counter + 1));
-
-        Promise.all(promises)
-            .then(() => {
-                alert(alertMessage + "✅ Transmisi Data Sukses! Data & Foto telah tersimpan di cloud.");
-                document.getElementById("no_spp").value = ""; 
-                document.getElementById("no_produksi").value = "";
-                document.getElementById("uraian_pekerjaan").value = ""; 
-                document.getElementById("foto_aktual").value = "";
-                document.getElementById("row_manual_produk").classList.add('hidden');
-                document.getElementById("row_manual_kategori").classList.add('hidden');
-                document.getElementById("row_manual_kondisi").classList.add('hidden');
-                document.getElementById("row_manual_tahap").classList.add('hidden');
-                updateTimeDisplay(); 
-            })
-            .catch((error) => alert("❌ Transmisi Gagal: " + error.message))
-            .finally(() => { submitBtn.innerText = "SUBMIT DATA PRODUKSI"; submitBtn.disabled = false; });
     }
 
     function searchTable() {
         const filter = document.getElementById("searchInput").value.toLowerCase();
-        const tr = document.getElementById("historyTable").getElementsByTagName("tr");
-        for (let i = 1; i < tr.length; i++) { 
-            let match = false; let td = tr[i].getElementsByTagName("td");
-            for (let j = 0; j < td.length; j++) if (td[j] && td[j].innerHTML.toLowerCase().indexOf(filter) > -1) { match = true; break; }
-            tr[i].style.display = match ? "" : "none";
+        const tbody = document.getElementById("historyTable").querySelector("tbody");
+        const rows = tbody.getElementsByTagName("tr");
+        
+        let currentGroupHeader = null;
+        let showCurrentGroup = false;
+
+        for (let i = 0; i < rows.length; i++) {
+            let row = rows[i];
+            
+            if (row.children.length === 1 && row.children[0].colSpan === 9) {
+                currentGroupHeader = row;
+                showCurrentGroup = false; 
+                if (row.innerText.toLowerCase().includes(filter)) {
+                    showCurrentGroup = true;
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            } else {
+                let searchData = row.getAttribute('data-search') || "";
+                if (searchData.includes(filter) || showCurrentGroup) {
+                    row.style.display = "";
+                    if (currentGroupHeader) currentGroupHeader.style.display = ""; 
+                } else {
+                    row.style.display = "none";
+                }
+            }
         }
     }
 
@@ -1471,7 +1525,6 @@
             inputWaktu.value = formattedRealTime; checkTimeLogic(); 
         }
 
-        // Set default value jam_mulai (otomatis ke 08:00 hari ini) jika operator belum memilih/kosong
         if (inputMulai && !inputMulai.value) {
             inputMulai.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}T08:00`;
         }
