@@ -268,14 +268,34 @@
                 <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Nama Produk</label>
                 <input type="text" class="form-control" id="edit_produk" required>
             </div>
-            <div style="margin-bottom: 12px;">
-                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">No. Produksi</label>
-                <input type="text" class="form-control" id="edit_no_produksi">
+            <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                <div style="flex: 1;">
+                    <label style="font-size:12px; font-weight:600; color:var(--text-muted);">No. Produksi</label>
+                    <input type="text" class="form-control" id="edit_no_produksi">
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size:12px; font-weight:600; color:var(--text-muted);">No. Produk</label>
+                    <input type="text" class="form-control" id="edit_no_produk">
+                </div>
             </div>
-            <div style="margin-bottom: 12px;">
-                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">No. Produk</label>
-                <input type="text" class="form-control" id="edit_no_produk">
+            
+            <div style="margin-bottom: 15px; padding: 12px; background-color: #FEF2F2; border: 1px dashed var(--danger); border-radius: 6px;">
+                <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+                    <div style="flex: 1;">
+                        <label style="font-size:12px; font-weight:700; color:var(--danger);">[DEV] Waktu Terpakai</label>
+                        <input type="text" class="form-control" id="edit_waktuTerpakai" required>
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="font-size:12px; font-weight:700; color:var(--danger);">[DEV] Sisa Waktu</label>
+                        <input type="text" class="form-control" id="edit_waktuSisa" required>
+                    </div>
+                </div>
+                <label style="font-size:11px; font-weight:600; color:var(--danger); display: flex; align-items: center; gap: 5px;">
+                    <input type="checkbox" id="sync_tracking" checked> 
+                    Timpa kalkulasi SPP aktif dengan angka ini (Sinkronisasi Sistem)
+                </label>
             </div>
+
             <div style="margin-bottom: 12px;">
                 <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Kategori Pekerjaan</label>
                 <select class="form-control" id="edit_kategori" required>
@@ -1277,6 +1297,11 @@
         document.getElementById('edit_no_produksi').value = item.noProduksi || "";
         document.getElementById('edit_no_produk').value = item.noProduk || "";
         
+        // Memasukkan data durasi waktu untuk diedit
+        document.getElementById('edit_waktuTerpakai').value = item.waktuTerpakai || "0";
+        document.getElementById('edit_waktuSisa').value = item.waktuSisa || "0";
+        document.getElementById('sync_tracking').checked = true; // Auto checklist
+        
         const kategoriSelect = document.getElementById('edit_kategori');
         let hasKatOpt = false;
         for (let i = 0; i < kategoriSelect.options.length; i++) { if (kategoriSelect.options[i].value === item.kategori) { kategoriSelect.selectedIndex = i; hasKatOpt = true; break; } }
@@ -1307,6 +1332,8 @@
             namaProduk: document.getElementById('edit_produk').value,
             noProduksi: document.getElementById('edit_no_produksi').value,
             noProduk: document.getElementById('edit_no_produk').value,
+            waktuTerpakai: document.getElementById('edit_waktuTerpakai').value, // Ambil data baru
+            waktuSisa: document.getElementById('edit_waktuSisa').value,         // Ambil data baru
             kategori: document.getElementById('edit_kategori').value,
             kondisi: document.getElementById('edit_status').value,
             stdWaktu: document.getElementById('edit_stdwaktu').value,
@@ -1317,6 +1344,19 @@
         let safeSpp = newData.noSpp.replace(/[\.\#\$\/\[\]]/g, "_");
 
         const promises = [ db.ref(`history/${key}`).update(newData) ];
+
+        // Logika Sinkronisasi Memori SPP (Reset Waktu)
+        const isSyncChecked = document.getElementById('sync_tracking').checked;
+        if (isSyncChecked) {
+            let targetHours = parseInt(newData.stdWaktu) || 0;
+            let currentUsed = parseFloat(newData.waktuTerpakai) || 0;
+            
+            // Update node spkTracking agar sistem operator ke depannya memakai angka ini
+            promises.push(db.ref(`spkTracking/${safeSpp}`).update({
+                accumulatedUsed: currentUsed,
+                target: targetHours
+            }));
+        }
 
         if (newData.kondisi.includes("Selesai") || newData.kondisi.includes("Lembur")) {
             promises.push(db.ref(`pendingJobs/${safeSpp}`).remove());
@@ -1334,7 +1374,7 @@
 
         Promise.all(promises)
             .then(() => { 
-                alert("✅ Data History & Tabel Antrean berhasil diperbarui otomatis!"); 
+                alert("✅ Data History & Waktu Kalkulasi berhasil diperbarui!"); 
                 closeEditHistoryModal(); 
             })
             .catch((error) => alert("❌ Gagal merubah database: " + error.message));
@@ -1440,14 +1480,39 @@
             }
 
             let targetHours = parseInt(stdWaktu) || 0;
-            let tracker = spkTracking[safeSpp] ? { ...spkTracking[safeSpp] } : { target: targetHours, accumulatedUsed: 0 };
+            // Tambahkan lastWaktuUpdate untuk melacak sampai jam berapa alat sudah dikerjakan
+            let tracker = spkTracking[safeSpp] ? { ...spkTracking[safeSpp] } : { target: targetHours, accumulatedUsed: 0, lastWaktuUpdate: "" };
             
-            let diffHours = calculateEffectiveHours(jamMulai, waktuUpdate);
+            let diffHours = 0;
             
-            // Pencegahan error NaN pada akumulasi tracker
-            tracker.accumulatedUsed = (parseFloat(tracker.accumulatedUsed) || 0) + (parseFloat(diffHours) || 0);
+            if (!tracker.lastWaktuUpdate) {
+                // Jika ini adalah laporan pertama untuk SPP ini
+                diffHours = calculateEffectiveHours(jamMulai, waktuUpdate);
+                tracker.accumulatedUsed = (parseFloat(tracker.accumulatedUsed) || 0) + (parseFloat(diffHours) || 0);
+                tracker.lastWaktuUpdate = waktuUpdate;
+            } else {
+                let startTime = new Date(jamMulai).getTime();
+                let endTime = new Date(waktuUpdate).getTime();
+                let lastEndTime = new Date(tracker.lastWaktuUpdate).getTime();
+
+                if (startTime >= lastEndTime) {
+                    // Waktu baru murni (contoh: lanjut kerja besoknya, tidak tumpang tindih)
+                    diffHours = calculateEffectiveHours(jamMulai, waktuUpdate);
+                    tracker.accumulatedUsed += diffHours;
+                    tracker.lastWaktuUpdate = waktuUpdate;
+                } else if (endTime > lastEndTime) {
+                    // Tumpang tindih sebagian (hitung sisa waktu tambahan yang belum terekam saja)
+                    diffHours = calculateEffectiveHours(tracker.lastWaktuUpdate, waktuUpdate);
+                    tracker.accumulatedUsed += diffHours;
+                    tracker.lastWaktuUpdate = waktuUpdate;
+                } else {
+                    // Tumpang tindih penuh (Si B bekerja di rentang waktu yang persis sama dengan Si A)
+                    // Tidak ada penambahan durasi waktu agar tidak double-count
+                    diffHours = 0;
+                }
+            }
             
-            let alertMessage = `[SYS.LOG] Durasi tugas terekam: ${diffHours.toFixed(1)} Jam.\n\n`;
+            let alertMessage = `[SYS.LOG] Durasi tugas terekam: ${diffHours > 0 ? diffHours.toFixed(1) : "0.0 (Waktu Paralel)"} Jam.\n\n`;
             
             let waktuTerpakaiFinal = tracker.accumulatedUsed.toFixed(1);
             let waktuSisaFinal = (targetHours - tracker.accumulatedUsed).toFixed(1);
